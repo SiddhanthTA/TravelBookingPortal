@@ -41,6 +41,7 @@ public class BookingService {
                 Booking booking=new Booking();
                 booking.setBookingType("FLIGHT");
                 booking.setFlightId(FlightId);
+                booking.setFlight(flight);
                 booking.setUserId(userId);
                 booking.setBookingReference("FL-"+UUID.randomUUID().toString().substring(0,6));
                 booking.setBookingDate(LocalDateTime.now());
@@ -65,12 +66,14 @@ public class BookingService {
 
                 Booking booking=new Booking();
                 booking.setBookingType("HOTEL");
-                booking.setFlightId(hotelId);
+                booking.setHotelId(hotelId);
+                booking.setHotel(hotel);
                 booking.setUserId(userId);
                 booking.setBookingReference("HT-"+UUID.randomUUID().toString().substring(0,6));
                 booking.setBookingDate(LocalDateTime.now());
                 booking.setTotalPrice(hotel.getPricePerNight()*nights);
                 booking.setStatus("CONFIRMED");
+                booking.setNights(nights);
                 return Optional.of(bookingRepository.save(booking));
             }
         }
@@ -110,7 +113,7 @@ public class BookingService {
             
             else if(booking.getBookingType().equals("HOTEL"))
             {
-                hotelRepository.findById(booking.getFlightId()).ifPresent(hotel-> {
+                hotelRepository.findById(booking.getHotelId()).ifPresent(hotel-> {
                     hotel.setAvailableRooms(hotel.getAvailableRooms()+1);
                     hotelRepository.save(hotel);
                 });

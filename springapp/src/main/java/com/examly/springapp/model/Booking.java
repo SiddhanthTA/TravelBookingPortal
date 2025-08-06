@@ -29,4 +29,12 @@ public class Booking {
     private double totalPrice;
     private String status;
     private int nights;
+
+    @ManyToOne
+    @JoinColumn(name = "flightId",insertable = false, updatable=false)
+    private Flight flight;
+
+    @ManyToOne
+    @JoinColumn(name="hotelId",insertable=false,updatable=false)
+    private Hotel hotel;
 }
