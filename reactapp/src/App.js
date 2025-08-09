@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Header from './components/Header';
-// import flightSearch from './components/FlightSearch';
+import flightSearch from './components/FlightSearch';
 import HotelSearch from './components/HotelSearch';
 import HotelList from './components/HotelList';
-// import './App.css';
+import './App.css';
 import { fetchHotels } from './utils/ApiService';
 
 function App()

@@ -41,6 +41,7 @@ public class BookingService {
                 Booking booking=new Booking();
                 booking.setBookingType("FLIGHT");
                 booking.setFlightId(FlightId);
+                booking.setHotelId(null);
                 booking.setFlight(flight);
                 booking.setUserId(userId);
                 booking.setBookingReference("FL-"+UUID.randomUUID().toString().substring(0,6));
@@ -67,6 +68,7 @@ public class BookingService {
                 Booking booking=new Booking();
                 booking.setBookingType("HOTEL");
                 booking.setHotelId(hotelId);
+                booking.setFlightId(null);
                 booking.setHotel(hotel);
                 booking.setUserId(userId);
                 booking.setBookingReference("HT-"+UUID.randomUUID().toString().substring(0,6));
@@ -124,5 +126,10 @@ public class BookingService {
         
         }
         return Optional.empty();
+    }
+
+    public List<Booking> getBookingByuserId(Long userId)
+    {
+        return bookingRepository.findByUserId(userId);
     }
 }
