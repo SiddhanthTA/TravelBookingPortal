@@ -23,6 +23,12 @@ public class HotelController {
         return hotelService.getAllHotels();
     } 
 
+    @GetMapping("/search")
+    public List<Hotel> searchHotelsByLocation(@RequestParam String location)
+    {
+        return hotelService.getHotelsByLocation(location);
+    }
+
     @PostMapping
     public Hotel addHotel(@RequestBody Hotel hotel)
     {
@@ -39,5 +45,11 @@ public class HotelController {
     public Hotel updateHotel(@PathVariable Long id,@RequestBody Hotel hotel)
     {
         return hotelService.updateHotel(id,hotel);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteHotel(@PathVariable Long id)
+    {
+        hotelService.deleteHotel(id);
     }
 }

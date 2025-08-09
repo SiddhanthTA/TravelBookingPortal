@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 // import org.springframework.web.service.annotation.DeleteExchange;
 
-import com.examly.springapp.service.AdminService;
+import com.examly.springapp.service.*;
 import com.examly.springapp.model.*;
 import java.util.*;
 
@@ -23,6 +24,11 @@ import java.util.*;
 @CrossOrigin(origins="*")
 public class AdminController {
     
+    @Autowired
+    private HotelService hotelService;
+
+    @Autowired
+    private FlightService flightService;
 
     @Autowired
     private AdminService adminService;
@@ -63,5 +69,57 @@ public class AdminController {
         return adminService.createFlightBooking(flightId,userId).orElse(null);
     }
     
-    
+    @GetMapping("/hotels")
+    public List<Hotel> adminGetAllHotels()
+    {
+        return hotelService.getAllHotels();
+    }   
+
+    @PostMapping("/hotels")
+    public Hotel adminAddHotel(@RequestBody Hotel hotel)
+    {
+        return hotelService.addHotel(hotel);
+    }
+
+    @PutMapping("/hotels/{id}")
+    public Hotel adminUpdateHotel(@PathVariable Long id, @RequestBody Hotel hotel)
+    {
+        return hotelService.updateHotel(id,hotel);
+    }
+
+    @DeleteMapping("/hotels/{id}")
+    public void adminDeleteHotel(@PathVariable Long id)
+    {
+        hotelService.deleteHotel(id);
+    }
+
+    @GetMapping("/flights")
+    public List<Flight> adminGetAllFlights()
+    {
+        return flightService.getAllFlights();
+    }
+
+    @PostMapping("/flights")
+    public Flight adminAddFlight(@RequestBody Flight flight)
+    {
+        return flightService.addFlight(flight);
+    }
+
+    @GetMapping("/flights/{id}")
+    public Flight adminGetFlightById(@PathVariable Long id)
+    {
+        return flightService.getFlightById(id).orElse(null);
+    }
+
+    @PutMapping("/flights/{id}")
+    public Flight adminUpdateFlight(@PathVariable Long id,@RequestBody Flight flight)
+    {
+        return flightService.updateFlight(id,flight);
+    }
+
+    @DeleteMapping("/flights/{id}")
+    public void adminDeleteFlight(@PathVariable Long id)
+    {
+        flightService.deleteFlight(id);
+    }
 }

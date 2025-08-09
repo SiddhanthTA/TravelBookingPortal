@@ -5,7 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.examly.springapp.model.User;
-import java.util.List;
+import java.util.*;
 import java.util.Optional;
 
 import com.examly.springapp.repository.UserRepo;
@@ -45,22 +45,45 @@ public class UserService {
         return repo.findAll();
     }
 
-    public String checkDetails(String email,String password)
+    public Map<String,String> checkDetails(String email,String password)
     {
+        Map<String,String> response=new HashMap<>();
         if(email==null||password==null)
-        return "Wrong Email or Password....";
+        {
+            response.put("status","failure");
+            response.put("message","Wrong email or password");
+            response.put("role","");
+            return response;
+        
+        }
 
         User user=repo.findByEmail(email);
         if(user==null)
-        return "Wrong Email or Password....";
+        {
+            response.put("status","failure");
+            response.put("message","Wrong email or password");
+            response.put("role","");
+            return response;
+
+        }
 
         boolean result=encoder.matches(password,user.getPassword());
 
         if(result)
         {
-            return "Logged in successfully....";
+            response.put("status","success");
+            response.put("message","Logged in successfully");
+            response.put("role",user.getRole().name());
+            
         }
-        return "Wrong Email or Password....";
+        else  
+        {
+            
+            response.put("status","failure");
+            response.put("message","Wrong email or password");
+            response.put("role","");
+        }
+        return response;
     }
 
     public Optional<User> findById(Long id)

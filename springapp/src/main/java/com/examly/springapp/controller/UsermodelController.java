@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import com.examly.springapp.model.Booking;
 import com.examly.springapp.model.User;
 import com.examly.springapp.service.BookingService;
@@ -14,6 +16,7 @@ import java.util.*;
 // import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
+@Tag(name="User registration & Authentication")
 @RequestMapping("/Auth")
 public class UsermodelController {
     
@@ -30,13 +33,14 @@ public class UsermodelController {
         return ser.register(data);
     }
 
+
     @GetMapping("/show")
     public List<User> showdata()
     {
         return ser.show();
     }
     @PostMapping("/check")
-    public String checkStatus(@RequestParam String email,@RequestParam String pass)
+    public Map<String,String> checkStatus(@RequestParam String email,@RequestParam String pass)
     {
         return ser.checkDetails(email, pass);
     }
@@ -61,6 +65,13 @@ public class UsermodelController {
     public List<Booking> getBookingForUser(@PathVariable Long userId)
     {
         return bookingService.getBookingByuserId(userId);
+    }
+
+    @PostMapping("/adminRegistration")
+    public String insertAdmin(@RequestBody User data)
+    {
+        data.setRole(User.Role.ADMIN);
+        return ser.register(data);
     }
     
 }

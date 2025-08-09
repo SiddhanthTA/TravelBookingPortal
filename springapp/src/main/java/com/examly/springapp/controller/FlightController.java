@@ -48,4 +48,10 @@ public class FlightController {
     {
         return flightService.searchFlights(origin, destination);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteFlight(@PathVariable Long id)
+    {
+        flightService.deleteFlight(id);
+    }
 }

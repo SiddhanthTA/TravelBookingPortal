@@ -19,6 +19,11 @@ public class HotelService {
         return hotelRepository.findAll();
     }
 
+    public List<Hotel> getHotelsByLocation(String location)
+    {
+        return hotelRepository.findByLocation(location);
+    }
+
     public Hotel addHotel(Hotel hotel)
     {
         return hotelRepository.save(hotel);
