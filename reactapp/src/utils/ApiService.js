@@ -30,6 +30,8 @@ export const getAllHotels = async () =>{
     return res.data;
 };
 
+
+
 export const fetchHotels = async (location, minRating, maxPrice) => {
     const res = await api.get('/hotels/search',
         {
@@ -44,13 +46,10 @@ export const bookHotel = async (userId,hotelId,nights) =>{
 };
 
 
-export const getUserBookings = async () => {
-    const res = await axios.get(`${BASE_URL}/bookings`);
-    return res.data;
-};
 
-export const cancelBooking = async (id) => {
-    const res = await axios.put(`${BASE_URL}/bookings/${id}/cancel`);
+
+export const cancelBooking = async (bookingId) => {
+    const res = await api.put(`/bookings/${bookingId}/cancel`);
     return res.data;
 }
 
@@ -75,6 +74,15 @@ export const registerAdmin = async (adminData) => {
     const res = await api.post('/Auth/adminRegistration', adminData);
     return res.data;
 };
+
+export const getUserBookings = async ()=>{
+    const userId=localStorage.getItem('userId');
+    if(!userId) throw new Error('User not logged in');
+    const res=await api.get(`Auth/${userId}/bookings`);
+    return res.data;
+}
+
+
 
 export default {
     fetchFlights,

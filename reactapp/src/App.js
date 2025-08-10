@@ -1,78 +1,79 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
+import './App.css';
 import Header from './components/Header';
-// import HotelSearch from './components/HotelSearch';
-// import HotelList from './components/HotelList';
 import Login from './components/Login';
 import Register from './components/Register';
-
-// import { fetchHotels } from './utils/ApiService';
 import FlightPage from './components/FlightPage';
 import HotelPage from './components/HotelPage';
+import BookingPage from './components/BookingPage';
 
-// PrivateRoute component to protect routes
+// PrivateRoute to protect pages
 const PrivateRoute = ({ children }) => {
     const userEmail = localStorage.getItem('userEmail');
     return userEmail ? children : <Navigate to="/login" />;
 };
 
-// This component contains all routing logic and uses useLocation safely
+// Home page component with promotional sections
+const HomePage = () => {
+    const navigate = useNavigate();
+
+    return (
+        <main className="home-container">
+            <section className="welcome-section">
+                <h2>Welcome to Travel Booking Portal</h2>
+                <p>Your one stop destination to search and book flights, hotels and manage your bookings!</p>
+            </section>
+
+            <section className="promo-section flight-promo">
+                <h3>Book Flights to Your Dream Destination</h3>
+                <p>Explore thousands of flight options at great prices.</p>
+                <button className="btn-primary" onClick={() => navigate('/flights')}>
+                    Explore Flights
+                </button>
+            </section>
+
+            <section className="promo-section hotel-promo">
+                <h3>Find Hotels That Feel Like Home</h3>
+                <p>Comfortable stays, handpicked for your convenience.</p>
+                <button className="btn-primary" onClick={() => navigate('/hotels')}>
+                    Search Hotels
+                </button>
+            </section>
+
+            <section className="promo-section booking-promo">
+                <h3>Manage Your Bookings</h3>
+                <p>View and update your bookings easily anytime.</p>
+                <button className="btn-primary" onClick={() => navigate('/bookings')}>
+                    My Bookings
+                </button>
+            </section>
+        </main>
+    );
+};
+
+// Routes component that controls header display and routing
 function AppRoutes() {
     const location = useLocation();
     const hideHeader = location.pathname === '/login' || location.pathname === '/register';
-    // const [hotels, setHotels] = React.useState([]);
 
     return (
         <>
             {!hideHeader && <Header />}
             <div className="main-content">
                 <Routes>
-                    {/* Public routes */}
+                    {/* Public */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
 
-                    {/* Protected routes */}
-                    <Route
-                        path="/"
-                        element={
-                            <PrivateRoute>
-                                <div className="welcome-box">
-                                    <h2>Welcome to travel booking portal</h2>
-                                    <p>Your one stop destination to search and book flights</p>
-                                </div>
-                            </PrivateRoute>
-                        }
-                    />
-                    <Route
-                        path="/flights"
-                        element={
-                            <PrivateRoute>
-                                {/* <FlightSearch /> */}
-                                <FlightPage/>
-                            </PrivateRoute>
-                        }
-                    />
-                    <Route
-                        path="/hotels"
-                        element={
-                            <PrivateRoute>
-                               <HotelPage/>
-                            </PrivateRoute>
-                        }
-                    />
-                    <Route
-                        path="/bookings"
-                        element={
-                            <PrivateRoute>
-                                <div className="centered-box">
-                                    <h2>Booking management coming soon</h2>
-                                </div>
-                            </PrivateRoute>
-                        }
-                    />
+                    {/* Protected */}
+                    <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
+                    <Route path="/flights" element={<PrivateRoute><FlightPage /></PrivateRoute>} />
+                    <Route path="/hotels" element={<PrivateRoute><HotelPage /></PrivateRoute>} />
+                    <Route path="/bookings" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
 
-                    {/* Redirect unknown paths to login */}
+                    {/* Catch all */}
                     <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
             </div>
