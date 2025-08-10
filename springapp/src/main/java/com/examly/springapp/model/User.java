@@ -33,7 +33,7 @@ public class User
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
-    private Role role=Role.CUSTOMER;
+    private Role role;
 
     @Column
     private String phoneNumber;

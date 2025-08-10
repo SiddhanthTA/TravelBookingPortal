@@ -33,7 +33,7 @@ public class UserService {
         {
             if(value.getRole()==null)
             {
-                value.setRole(User.Role.CUSTOMER);
+                return "Role is required";
             }
             repo.save(value);
             return "User Registered";
@@ -45,9 +45,9 @@ public class UserService {
         return repo.findAll();
     }
 
-    public Map<String,String> checkDetails(String email,String password)
+    public Map<String,Object> checkDetails(String email,String password)
     {
-        Map<String,String> response=new HashMap<>();
+        Map<String,Object> response=new HashMap<>();
         if(email==null||password==null)
         {
             response.put("status","failure");
@@ -74,7 +74,7 @@ public class UserService {
             response.put("status","success");
             response.put("message","Logged in successfully");
             response.put("role",user.getRole().name());
-            
+            response.put("id",user.getId());
         }
         else  
         {

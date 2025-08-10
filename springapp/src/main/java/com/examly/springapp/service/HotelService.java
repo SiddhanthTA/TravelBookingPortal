@@ -19,10 +19,38 @@ public class HotelService {
         return hotelRepository.findAll();
     }
 
-    public List<Hotel> getHotelsByLocation(String location)
+    public List<Hotel> searchHotels(String location,Integer rating,Double price)
     {
-        return hotelRepository.findByLocation(location);
+        if(location!=null && rating!=null && price!=null)
+        {
+            return hotelRepository.findByLocationAndRatingGreaterThanEqualAndPricePerNightLessThanEqual(location, rating, price);
+        }
+        else if(location!=null && rating!=null)
+        {
+            return hotelRepository.findByLocationAndRatingGreaterThanEqual(location, rating);
+        }
+        else if(location!=null && price!=null)
+        {
+            return hotelRepository.findByRatingGreaterThanEqualAndPricePerNightLessThanEqual(rating, price);
+        }
+        else if(location!=null)
+        {
+            return hotelRepository.findByLocation(location);
+        }
+        else if(rating!=null)
+        {
+            return hotelRepository.findByRatingGreaterThanEqual(rating);
+        }
+        else if(price!=null)
+        {
+            return hotelRepository.findByPricePerNightLessThanEqual(price);
+        }
+        else  
+        {
+            return hotelRepository.findAll();
+        }
     }
+
 
     public Hotel addHotel(Hotel hotel)
     {

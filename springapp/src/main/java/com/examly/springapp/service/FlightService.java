@@ -3,6 +3,7 @@ package com.examly.springapp.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -28,6 +29,22 @@ public class FlightService
     public List<Flight> getFlightsByPrice(double price)
     {
         return flightrepository.findByPriceLessThanEqual(price);
+    }
+
+    public List<Flight> searchFlightsByDate(String origin,String destination,String dateStr)
+    {
+        if(dateStr==null||dateStr.isEmpty())
+        {
+            return searchFlights(origin, destination);
+        }
+        try{
+            LocalDate date=LocalDate.parse(dateStr);
+            LocalDateTime startOfDay=date.atStartOfDay();
+            LocalDateTime endOfDay=date.atTime(23,59,59,999999999);
+            return flightrepository.findByOriginAndDestinationAndDepartureTimeBetween(origin, destination, startOfDay, endOfDay);
+        }catch(Exception e){
+            return Collections.emptyList();
+        }
     }
 
     public List<Flight> getFlightsByOriginDestinationAndTimeRange(String origin,String destination,LocalDateTime start,LocalDateTime end)

@@ -40,7 +40,7 @@ public class UsermodelController {
         return ser.show();
     }
     @PostMapping("/check")
-    public Map<String,String> checkStatus(@RequestParam String email,@RequestParam String pass)
+    public Map<String,Object> checkStatus(@RequestParam String email,@RequestParam String pass)
     {
         return ser.checkDetails(email, pass);
     }

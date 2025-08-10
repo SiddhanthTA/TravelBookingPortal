@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 
-function flightSearch({onSearch,loading})
+function FlightSearch({onSearch,loading})
 {
     const [origin,setOrigin] = useState('');
-    const [destination,SetDestination] = useState('');
+    const [destination,setDestination] = useState('');
     const [date,setDate] = useState('');
     const [errors,setErrors] = useState({});
 
@@ -46,7 +46,7 @@ function flightSearch({onSearch,loading})
             id="destination"
             data-testid="destination-input"
             value={destination}
-            onChange={(e)=>SetDestination(e.target.value)}/>
+            onChange={(e)=>setDestination(e.target.value)}/>
             <label htmlFor="departureDate">Departure Date</label>
             <input 
             id="departureDate"
@@ -67,4 +67,4 @@ function flightSearch({onSearch,loading})
         </div>
     );
 }
-export default flightSearch;
+export default FlightSearch;

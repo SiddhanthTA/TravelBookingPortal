@@ -1,43 +1,91 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+
 import Header from './components/Header';
-import flightSearch from './components/FlightSearch';
-import HotelSearch from './components/HotelSearch';
-import HotelList from './components/HotelList';
-import './App.css';
-import { fetchHotels } from './utils/ApiService';
+// import HotelSearch from './components/HotelSearch';
+// import HotelList from './components/HotelList';
+import Login from './components/Login';
+import Register from './components/Register';
 
-function App()
-{
-    const [hotels,setHotels]=React.useState([]);
+// import { fetchHotels } from './utils/ApiService';
+import FlightPage from './components/FlightPage';
+import HotelPage from './components/HotelPage';
 
-    return(
-        <Router>
-            <Header />
+// PrivateRoute component to protect routes
+const PrivateRoute = ({ children }) => {
+    const userEmail = localStorage.getItem('userEmail');
+    return userEmail ? children : <Navigate to="/login" />;
+};
+
+// This component contains all routing logic and uses useLocation safely
+function AppRoutes() {
+    const location = useLocation();
+    const hideHeader = location.pathname === '/login' || location.pathname === '/register';
+    // const [hotels, setHotels] = React.useState([]);
+
+    return (
+        <>
+            {!hideHeader && <Header />}
             <div className="main-content">
                 <Routes>
-                    <Route path="/" element={
-                        <div className="welcome-box">
-                            <h2>Welcome to travel booking portal</h2>
-                            <p>Your one stop destination to search and book flights</p>
-                            </div>
-                    }
+                    {/* Public routes */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+
+                    {/* Protected routes */}
+                    <Route
+                        path="/"
+                        element={
+                            <PrivateRoute>
+                                <div className="welcome-box">
+                                    <h2>Welcome to travel booking portal</h2>
+                                    <p>Your one stop destination to search and book flights</p>
+                                </div>
+                            </PrivateRoute>
+                        }
                     />
-                    <Route path="/flights" element={<flightSearch onSearch={()=>{}} loading={false} />}/>
-                    <Route path="hotels"
-                    element={
-                        <>
-                        <HotelSearch onSearch={(location,minRating,maxPrice)=>
-                        fetchHotels(location,minRating,maxPrice).then(setHotels)}loading={false}
-                        />
-                        <HotelList hotels={hotels}/>
-                        </> 
-                    }
+                    <Route
+                        path="/flights"
+                        element={
+                            <PrivateRoute>
+                                {/* <FlightSearch /> */}
+                                <FlightPage/>
+                            </PrivateRoute>
+                        }
                     />
-                    <Route path="/bookings" element={<div className="centered-box"><h2>Booking management coming soon</h2></div>}/>
-                    </Routes>
+                    <Route
+                        path="/hotels"
+                        element={
+                            <PrivateRoute>
+                               <HotelPage/>
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/bookings"
+                        element={
+                            <PrivateRoute>
+                                <div className="centered-box">
+                                    <h2>Booking management coming soon</h2>
+                                </div>
+                            </PrivateRoute>
+                        }
+                    />
+
+                    {/* Redirect unknown paths to login */}
+                    <Route path="*" element={<Navigate to="/login" replace />} />
+                </Routes>
             </div>
+        </>
+    );
+}
+
+function App() {
+    return (
+        <Router>
+            <AppRoutes />
         </Router>
     );
 }
+
 export default App;
