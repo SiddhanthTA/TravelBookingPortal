@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import HotelSearch from './HotelSearch';
 import HotelList from './HotelList';
 import ApiService from '../utils/ApiService';
+import './HotelPage.css';
 
 const HotelPage = () => {
     const [hotels, setHotels] = useState([]);
@@ -61,7 +62,7 @@ const HotelPage = () => {
             await ApiService.bookHotel(userId, hotelId, Number(nights));
             alert('Hotel booked successfully!');
             fetchAllHotels();
-            setBookingNights(prev => ({ ...prev, [hotelId]: '' })); // reset input after booking
+            setBookingNights(prev => ({ ...prev, [hotelId]: '' }));
         } catch (err) {
             setError('Booking failed');
         } finally {
@@ -70,12 +71,12 @@ const HotelPage = () => {
     };
 
     return (
-        <div>
-            <h2>Search Hotels</h2>
+        <div className="hotel-page-container">
+            <h2 className="hotel-title">🏨 Find Your Perfect Stay</h2>
             <HotelSearch onSearch={handleSearch} loading={loading} />
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && <p className="error-message">{error}</p>}
             {loading ? (
-                <p>Loading hotels...</p>
+                <p className="loading-text">Loading hotels...</p>
             ) : (
                 <HotelList
                     hotels={hotels}

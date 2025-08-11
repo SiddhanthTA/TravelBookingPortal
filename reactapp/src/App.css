@@ -11,9 +11,10 @@ html {
 
 /* Container for main content below header */
 .main-content {
-    padding: 80px 20px 40px;
+    /* padding: 80px 20px 40px; */
+    padding-top: 30px;
     /* top padding for fixed header */
-    max-width: 1200px;
+    max-width: 1353px;
     margin: 0 auto;
 }
 
@@ -35,21 +36,45 @@ html {
     font-size: 2.8rem;
     margin-bottom: 0.5rem;
 }
-
+.promo-content{
+    display: flex;
+    gap:50px;
+}
 .welcome-section p {
     font-size: 1.3rem;
     font-weight: 500;
 }
 
 /* Promo sections style */
+/* Promo sections style */
 .promo-section {
+    display: flex;
+    /* side-by-side layout */
+    align-items: center;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
     padding: 2rem;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    text-align: center;
     transition: transform 0.3s ease;
     cursor: default;
+    gap: 2rem;
+    /* space between image and text */
+    text-align: left;
+    /* align text to left now */
+}
+
+.promo-section img {
+    width: 250px;
+    /* fixed size for consistency */
+    height: auto;
+    border-radius: 8px;
+    flex-shrink: 0;
+    /* prevents image from shrinking */
+}
+
+.promo-text {
+    flex: 1;
+    /* take remaining space */
 }
 
 .promo-section:hover {
@@ -69,6 +94,7 @@ html {
     margin-bottom: 1.5rem;
     color: #444;
 }
+
 
 .btn-primary {
     background: #007bff;

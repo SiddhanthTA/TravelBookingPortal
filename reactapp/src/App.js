@@ -12,9 +12,10 @@ import BookingPage from './components/BookingPage';
 // PrivateRoute to protect pages
 const PrivateRoute = ({ children }) => {
     const userEmail = localStorage.getItem('userEmail');
-    return userEmail ? children : <Navigate to="/login" />;
+    return userEmail ? children : <Navigate to="/login" replace />;
 };
 
+// Home page component with promotional sections
 // Home page component with promotional sections
 const HomePage = () => {
     const navigate = useNavigate();
@@ -27,31 +28,59 @@ const HomePage = () => {
             </section>
 
             <section className="promo-section flight-promo">
-                <h3>Book Flights to Your Dream Destination</h3>
-                <p>Explore thousands of flight options at great prices.</p>
-                <button className="btn-primary" onClick={() => navigate('/flights')}>
-                    Explore Flights
-                </button>
+                <div className="promo-content">
+                    <img
+                        src="https://images.pexels.com/photos/1004584/pexels-photo-1004584.jpeg"
+                        alt="Flight"
+                        className="promo-image"
+                    />
+                    <div className="promo-text">
+                        <h3>Book Flights to Your Dream Destination</h3>
+                        <p>Explore thousands of flight options at great prices.</p>
+                        <button className="btn-primary" onClick={() => navigate('/flights')}>
+                            Explore Flights
+                        </button>
+                    </div>
+                </div>
             </section>
 
             <section className="promo-section hotel-promo">
-                <h3>Find Hotels That Feel Like Home</h3>
-                <p>Comfortable stays, handpicked for your convenience.</p>
-                <button className="btn-primary" onClick={() => navigate('/hotels')}>
-                    Search Hotels
-                </button>
+                <div className="promo-content">
+                    <img
+                        src="https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg"
+                        alt="Hotel"
+                        className="promo-image"
+                    />
+                    <div className="promo-text">
+                        <h3>Find Hotels That Feel Like Home</h3>
+                        <p>Comfortable stays, handpicked for your convenience.</p>
+                        <button className="btn-primary" onClick={() => navigate('/hotels')}>
+                            Search Hotels
+                        </button>
+                    </div>
+                </div>
             </section>
 
             <section className="promo-section booking-promo">
-                <h3>Manage Your Bookings</h3>
-                <p>View and update your bookings easily anytime.</p>
-                <button className="btn-primary" onClick={() => navigate('/bookings')}>
-                    My Bookings
-                </button>
+                <div className="promo-content">
+                    <img
+                        src="https://images.pexels.com/photos/1051075/pexels-photo-1051075.jpeg"
+                        alt="Bookings"
+                        className="promo-image"
+                    />
+                    <div className="promo-text">
+                        <h3>Manage Your Bookings</h3>
+                        <p>View and update your bookings easily anytime.</p>
+                        <button className="btn-primary" onClick={() => navigate('/bookings')}>
+                            My Bookings
+                        </button>
+                    </div>
+                </div>
             </section>
         </main>
     );
 };
+
 
 // Routes component that controls header display and routing
 function AppRoutes() {

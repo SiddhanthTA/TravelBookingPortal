@@ -1,47 +1,66 @@
-import React, { useEffect, useState} from 'react';
-import { getUserBookings, cancelBooking } from '../utils/ApiService';
-function BookingList()
-{
-    const [bookings,setBookings] = useState([]);
+import React, { useEffect, useState } from 'react';
+import ApiService from '../utils/ApiService';
+import './BookingPage.css';
 
-    useEffect(()=> 
-    {
-        getUserBookings().then((res)=>setBookings(res));
-    },[]);
+const BookingList = ({ setError }) => {
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleCancel=async (id) =>
-    {
-        const updated=await cancelBooking(id);
-        setBookings((prev)=>
-        prev.map((b)=>(b.id===id? {...b,status: updated.status}: b))
-        );
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    const fetchBookings = async () => {
+        try {
+            const data = await ApiService.getUserBookings();
+            setBookings(data);
+        } catch (error) {
+            setError && setError('Error fetching bookings');
+            console.error('Error fetching bookings:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    if(bookings.length===0)
-    {
-        return <div>no bookings</div>;
+    const handleCancel = async (id) => {
+        try {
+            setError && setError(null);
+            const updatedBooking = await ApiService.cancelBooking(id);
+            setBookings((prev) =>
+                prev.map((b) => (b.id === id ? updatedBooking : b))
+            );
+        } catch (error) {
+            setError && setError('Error cancelling booking');
+            console.error('Error cancelling booking:', error);
+        }
+    };
+
+    if (loading) return <div className="loading">Loading your bookings...</div>;
+
+    if (!bookings || bookings.length === 0) {
+        return <div className="no-bookings">No bookings found.</div>;
     }
 
-    return(
-        <div>
-        {bookings.map((booking)=>(
-            <div key={booking.id}>
-                <h3>{booking.bookingReference}</h3>
-                <p>
-                    {booking.bookingType==='FLIGHT'
-                    ? `Flight #${booking.flightId}`
-                    : `Hotel #${booking.hotelId}`
-                    }
-                </p>
-                <p>Status: {booking.status}</p>
-                <button data-testid={`cancel-btn-${booking.id}`}
-                disabled={booking.status!=='CONFIRMED'}
-                onClick={()=>handleCancel(booking.id)}>
-                    Cancel
-                </button>
-            </div>
-    ))}
-    </div>
+    return (
+        <div className="booking-list">
+            {bookings.map((booking) => (
+                <div className="booking-card" key={booking.id}>
+                    <p><strong>Reference:</strong> {booking.bookingReference}</p>
+                    {booking.bookingType === 'HOTEL' && <p><strong>Hotel ID:</strong> {booking.hotelId}</p>}
+                    {booking.bookingType === 'FLIGHT' && <p><strong>Flight ID:</strong> {booking.flightId}</p>}
+                    <p><strong>Status:</strong> <span className={`status ${booking.status.toLowerCase()}`}>{booking.status}</span></p>
+                    <button
+                        className="btn-cancel"
+                        data-testid={`cancel-btn-${booking.id}`}
+                        onClick={() => handleCancel(booking.id)}
+                        disabled={booking.status !== 'CONFIRMED'}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            ))}
+        </div>
     );
-}
+};
+
 export default BookingList;

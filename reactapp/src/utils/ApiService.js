@@ -49,7 +49,7 @@ export const bookHotel = async (userId,hotelId,nights) =>{
 
 
 export const cancelBooking = async (bookingId) => {
-    const res = await api.put(`/bookings/${bookingId}/cancel`);
+    const res = await api.put(`/api/bookings/${bookingId}/cancel`);
     return res.data;
 }
 

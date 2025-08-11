@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import BookingList from "./BookingList";
+import './BookingPage.css';
 
-const BookingPage =()=>{
-    const [error,setError]=useState(null);
+const BookingPage = () => {
+    const [error, setError] = useState(null);
 
-    return(
-        <div>
-            <h2>
-                Your Bookings
-            </h2>
-            {error && <p style={{color:'red'}}>{error}</p>}
-            <BookingList/>
+    return (
+        <div className="booking-page">
+            <h2 className="booking-page-title">Your Bookings</h2>
+            {error && <p className="error-text">{error}</p>}
+            <BookingList setError={setError} />
         </div>
     );
 };
+
 export default BookingPage;
