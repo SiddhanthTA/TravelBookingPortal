@@ -106,10 +106,10 @@ html {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(180deg, #87ceeb 0%, #ffffff 100%);
-    display: flex;
+    /* display: flex; */
     justify-content: center;
     align-items: center;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     /* prevent horizontal scroll */
     overflow-y: auto;
     position: relative;
@@ -123,8 +123,8 @@ body::before {
     left: -10%;
     width: 200%;
     height: 50%;
-    background: repeating-radial-gradient(circle at 10% 10%, #fff 0 30px, transparent 31px 60px);
-    opacity: 0.15;
+    /* background: repeating-radial-gradient(circle at 10% 10%, #fff 0 30px, transparent 31px 60px); */
+    /* opacity: 0.15; */
     animation: moveClouds 60s linear infinite;
     pointer-events: none;
     z-index: 0;

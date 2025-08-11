@@ -60,8 +60,8 @@ function AppRoutes() {
 
     return (
         <>
-            {!hideHeader && <Header />}
             <div className="main-content">
+                {!hideHeader && <Header />}
                 <Routes>
                     {/* Public */}
                     <Route path="/login" element={<Login />} />

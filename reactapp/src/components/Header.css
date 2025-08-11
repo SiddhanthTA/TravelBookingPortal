@@ -3,13 +3,15 @@
 .header {
     position: fixed;
     top: 0;
+    /* left:0; */
     width: 100%;
+    max-width: inherit;
     height: 60px;
     background: #004085;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 30px;
+    /* padding: 0 30px; */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     z-index: 1000;
     font-family: 'Poppins', sans-serif;
@@ -22,6 +24,7 @@
     letter-spacing: 0.06em;
     user-select: none;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    padding-left: 10px;
 }
 
 .nav-links {
