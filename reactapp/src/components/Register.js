@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../utils/ApiService';
-import './Register.css'; // new CSS import
+import './Register.css'; 
 
 const Register = () => {
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ const Register = () => {
         try {
             let response;
             if (form.role === 'ADMIN') {
-                // Remove role field because backend sets it automatically
+           
                 const { role, ...adminData } = form;
                 response = await ApiService.registerAdmin(adminData);
             } else {
@@ -50,10 +50,10 @@ const Register = () => {
 
     return (
         <>
-            {/* Title top-left */}
+      
             <div className="app-title">Travel Booking Application</div>
 
-            {/* Moving clouds in background */}
+        
             <div className="clouds-container" aria-hidden="true">
                 <div className="cloud" style={{ "--size": 140, "--top": 10, "--delay": 0, "--duration": 60 }}></div>
                 <div className="cloud" style={{ "--size": 120, "--top": 35, "--delay": 12, "--duration": 55 }}></div>
@@ -65,7 +65,7 @@ const Register = () => {
                 <div className="cloud" style={{ "--size": 125, "--top": 30, "--delay": 20, "--duration": 55 }}></div>
             </div>
 
-            {/* Register container */}
+        
             <div className="register-container">
                 <h2>Register</h2>
                 {message && <p className="message">{message}</p>}

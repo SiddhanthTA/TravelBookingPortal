@@ -28,8 +28,10 @@ function HotelSearch({ onSearch, loading }) {
     return (
         <div className="hotel-search">
             <div className="search-group">
-                <label>Location</label>
+                <label htmlFor="location-input">Location</label>
                 <input
+                    id="location-input"
+                    data-testid="location-input"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                 />
@@ -37,18 +39,22 @@ function HotelSearch({ onSearch, loading }) {
             </div>
 
             <div className="search-group">
-                <label>Minimum Rating</label>
+                <label htmlFor="min-rating-input">Minimum Rating</label>
                 <input
+                    id="min-rating-input"
                     type="number"
+                    data-testid="min-rating-input"
                     value={minRating}
                     onChange={(e) => setMinRating(e.target.value)}
                 />
             </div>
 
             <div className="search-group">
-                <label>Maximum Price</label>
+                <label htmlFor="max-price-input">Maximum Price per Night</label>
                 <input
+                    id="max-price-input"
                     type="number"
+                    data-testid="max-price-input"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                 />
@@ -56,6 +62,7 @@ function HotelSearch({ onSearch, loading }) {
             </div>
 
             <button
+                data-testid="search-hotel-btn"
                 className="search-btn"
                 onClick={handleSearch}
                 disabled={loading}

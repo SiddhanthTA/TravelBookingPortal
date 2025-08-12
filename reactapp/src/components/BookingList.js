@@ -46,8 +46,8 @@ const BookingList = ({ setError }) => {
             {bookings.map((booking) => (
                 <div className="booking-card" key={booking.id}>
                     <p><strong>Reference:</strong> {booking.bookingReference}</p>
-                    {booking.bookingType === 'HOTEL' && <p><strong>Hotel ID:</strong> {booking.hotelId}</p>}
-                    {booking.bookingType === 'FLIGHT' && <p><strong>Flight ID:</strong> {booking.flightId}</p>}
+                    {booking.bookingType === 'HOTEL' && <p><strong>Hotel #{booking.hotelId}</strong></p>}
+                    {booking.bookingType === 'FLIGHT' && <p><strong>Flight #{booking.flightId}</strong></p>}
                     <p><strong>Status:</strong> <span className={`status ${booking.status.toLowerCase()}`}>{booking.status}</span></p>
                     <button
                         className="btn-cancel"

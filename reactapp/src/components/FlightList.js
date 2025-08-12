@@ -33,6 +33,7 @@ function FlightList({ flights, onBook, bookingId, error }) {
                         <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
                         <p><strong>Price:</strong> ₹{flight.price}</p>
                         <button
+                            type="button"
                             data-testid={`book-flight-${flight.id}`}
                             onClick={() => onBook(flight.id)}
                             disabled={flight.availableSeats === 0 || bookingId === flight.id}
@@ -41,7 +42,7 @@ function FlightList({ flights, onBook, bookingId, error }) {
                             {flight.availableSeats === 0
                                 ? 'Sold Out'
                                 : bookingId === flight.id
-                                    ? 'Booking...'
+                                    ? 'Booked'
                                     : 'Book Now'}
                         </button>
                     </div>

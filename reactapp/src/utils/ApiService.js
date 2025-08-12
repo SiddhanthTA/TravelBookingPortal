@@ -1,99 +1,99 @@
-import axios from 'axios';
-import { BASE_URL } from './constants';
+    import axios from 'axios';
+    import { BASE_URL } from './constants';
 
-const api = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
-
-export const fetchFlights = async (origin, destination, departureDate) => {
-    const res = await axios.get(`${BASE_URL}/flights/search`, {
-        params: { origin, destination, departureDate }
+    const api = axios.create({
+        baseURL: BASE_URL,
+        headers: {
+            'Content-Type': 'application/json',
+        },
     });
-    return res.data;
-};
 
-export const getAllFlights = async ()=>{
-    const res=await api.get('/flights');
-    return res.data;
-}
-
-export const bookFlight = async (userId,flightId) =>{
-    const res= await api.post(`/Auth/${userId}/bookings/flight`,{flightId});
-    return res.data;
-}
-
-export const getAllHotels = async () =>{
-    const res= await api.get('/hotels');
-    return res.data;
-};
-
-
-
-export const fetchHotels = async (location, minRating, maxPrice) => {
-    const res = await api.get('/hotels/search',
-        {
-            params: { location, rating: minRating, price: maxPrice }
+    export const fetchFlights = async (origin, destination, departureDate) => {
+        const res = await axios.get(`${BASE_URL}/flights/search`, {
+            params: { origin, destination, departureDate }
         });
-    return res.data;
-};
+        return res.data;
+    };
 
-export const bookHotel = async (userId,hotelId,nights) =>{
-    const res=await api.post(`/Auth/${userId}/bookings/hotel`,{hotelId,nights});
-    return res.data;
-};
+    export const getAllFlights = async ()=>{
+        const res=await api.get('/flights');
+        return res.data;
+    }
 
+    export const bookFlight = async (userId,flightId) =>{
+        const res= await api.post(`/Auth/${userId}/bookings/flight`,{flightId});
+        return res.data;
+    }
 
-
-
-export const cancelBooking = async (bookingId) => {
-    const res = await api.put(`/api/bookings/${bookingId}/cancel`);
-    return res.data;
-}
-
-// Register user
-export const registerUser = async (userData) => {
-    // userData must include role, name, email, password etc.
-    const res = await api.post('/Auth/register', userData);
-    return res.data;
-};
-
-// Login user
-export const loginUser = async (email, password) => {
-    // backend expects POST with email & pass as query params
-    const res = await api.post('/Auth/check', null, {
-        params: { email, pass: password },
-    });
-    return res.data;
-};
-
-// (Optional) Admin registration
-export const registerAdmin = async (adminData) => {
-    const res = await api.post('/Auth/adminRegistration', adminData);
-    return res.data;
-};
-
-export const getUserBookings = async ()=>{
-    const userId=localStorage.getItem('userId');
-    if(!userId) throw new Error('User not logged in');
-    const res=await api.get(`Auth/${userId}/bookings`);
-    return res.data;
-}
+    export const getAllHotels = async () =>{
+        const res= await api.get('/hotels');
+        return res.data;
+    };
 
 
 
-export default {
-    fetchFlights,
-    fetchHotels,
-    getUserBookings,
-    cancelBooking,
-    registerUser,
-    loginUser,
-    registerAdmin,
-    getAllFlights,
-    bookFlight,
-    bookHotel,
-    getAllHotels
-};
+    export const fetchHotels = async (location, minRating, maxPrice) => {
+        const res = await api.get('/hotels/search',
+            {
+                params: { location, rating: minRating, price: maxPrice }
+            });
+        return res.data;
+    };
+
+    export const bookHotel = async (userId,hotelId,nights) =>{
+        const res=await api.post(`/Auth/${userId}/bookings/hotel`,{hotelId,nights});
+        return res.data;
+    };
+
+
+
+
+    export const cancelBooking = async (bookingId) => {
+        const res = await api.put(`/api/bookings/${bookingId}/cancel`);
+        return res.data;
+    }
+
+    // Register user
+    export const registerUser = async (userData) => {
+        // userData must include role, name, email, password etc.
+        const res = await api.post('/Auth/register', userData);
+        return res.data;
+    };
+
+    // Login user
+    export const loginUser = async (email, password) => {
+        // backend expects POST with email & pass as query params
+        const res = await api.post('/Auth/check', null, {
+            params: { email, pass: password },
+        });
+        return res.data;
+    };
+
+    // (Optional) Admin registration
+    export const registerAdmin = async (adminData) => {
+        const res = await api.post('/Auth/adminRegistration', adminData);
+        return res.data;
+    };
+
+    export const getUserBookings = async ()=>{
+        const userId=localStorage.getItem('userId');
+        if(!userId) throw new Error('User not logged in');
+        const res=await api.get(`Auth/${userId}/bookings`);
+        return res.data;
+    }
+
+
+
+    export default {
+        fetchFlights,
+        fetchHotels,
+        getUserBookings,
+        cancelBooking,
+        registerUser,
+        loginUser,
+        registerAdmin,
+        getAllFlights,
+        bookFlight,
+        bookHotel,
+        getAllHotels
+    };
