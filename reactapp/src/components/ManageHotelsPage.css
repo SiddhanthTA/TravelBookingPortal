@@ -1,0 +1,93 @@
+.manage-hotels-page {
+
+padding: 20px;
+}
+
+.manage-hotels-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.create-hotel-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.create-hotel-btn:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 15px;
+}
+
+.loading {
+    font-style: italic;
+}
+
+.hotels-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pikachu-hotel-card {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    width: 250px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.hotel-info h3 {
+    margin: 0 0 10px 0;
+}
+
+.hotel-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.edit-btn,
+.delete-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #1976D2;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+.no-hotels {
+    font-style: italic;
+}

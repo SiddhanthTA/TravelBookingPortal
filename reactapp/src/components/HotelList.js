@@ -9,7 +9,7 @@ const hotelImages = [
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
 ];
 
-const HotelList = ({ hotels, bookingNights, onNightsChange, onBook, bookingLoading }) => {
+const HotelList = ({ hotels, bookingNights, onNightsChange, onBook, bookingLoadingId }) => {
     if (!hotels.length) {
         return <p className="no-results">No hotels found for selection.</p>;
     }
@@ -40,9 +40,9 @@ const HotelList = ({ hotels, bookingNights, onNightsChange, onBook, bookingLoadi
                             />
                             <button
                                 onClick={() => onBook(hotel.id)}
-                                disabled={bookingLoading}
+                                disabled={bookingLoadingId===hotel.id}
                             >
-                                {bookingLoading ? 'Booking...' : 'Book Now'}
+                                {bookingLoadingId===hotel.id ? 'Booking...' : 'Book Now'}
                             </button>
                         </div>
                     </div>

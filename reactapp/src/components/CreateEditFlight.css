@@ -1,0 +1,59 @@
+.create-edit-flight-page {
+
+max-width: 600px;
+margin: 40px auto;
+padding: 25px;
+background: #f0f8ff;
+border-radius: 12px;
+box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+font-family: 'Poppins',
+sans-serif;
+}
+
+.create-edit-flight-page h2 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.create-edit-flight-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.create-edit-flight-form input {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.create-edit-flight-form input:focus {
+    border-color: #007bff;
+}
+
+.create-edit-flight-form button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.create-edit-flight-form button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #d9534f;
+    text-align: center;
+    font-weight: bold;
+}

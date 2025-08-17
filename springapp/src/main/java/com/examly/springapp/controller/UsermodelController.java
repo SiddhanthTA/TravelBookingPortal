@@ -74,4 +74,10 @@ public class UsermodelController {
         return ser.register(data);
     }
     
+    @DeleteMapping("/delete/{id}")
+    public String deleteUser(@PathVariable Long id)
+    {
+        boolean deleted=ser.deleteUser(id);
+        return deleted  ? "User deleted successfully " : "User not found";
+    }
 }

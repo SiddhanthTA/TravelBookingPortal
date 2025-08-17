@@ -9,10 +9,12 @@ const Header = () => {
     const handleLogout= (e)=>{
         e.preventDefault();
         localStorage.removeItem('userEmail');
+        localStorage.removeItem('userRole');
         navigate('/login');
     };
 
     const isLoggedIn=!!localStorage.getItem('userEmail');
+    const isAdmin=localStorage.getItem('userRole')==='ADMIN';
 
     return (
         <header className="header">
@@ -24,6 +26,11 @@ const Header = () => {
                 <Link to="/flights" className={location.pathname === '/flights' ? 'active' : ''}>Flights</Link>
                 <Link to="/hotels" className={location.pathname === '/hotels' ? 'active' : ''}>Hotels</Link>
                 <Link to="/bookings" className={location.pathname === '/bookings' ? 'active' : ''}>Bookings</Link>
+                {isAdmin &&(
+                    <Link to="/users" className={location.pathname==='/users' ? 'active' : ''}>Users</Link> 
+                )}
+
+
                 {isLoggedIn&&(
                     <Link to="/login" onClick={handleLogout} className={location.pathname==='/logout' ? 'active' : ''}>Logout
                     </Link>

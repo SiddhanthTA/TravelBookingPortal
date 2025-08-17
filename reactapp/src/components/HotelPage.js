@@ -3,12 +3,14 @@ import HotelSearch from './HotelSearch';
 import HotelList from './HotelList';
 import ApiService from '../utils/ApiService';
 import './HotelPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const HotelPage = () => {
-    const [hotels, setHotels] = useState([]);
+    const navigate=useNavigate();
+    const  [hotels, setHotels] = useState([]);
     const [loading, setLoading] = useState(false);
     const [bookingNights, setBookingNights] = useState({});
-    const [bookingLoading, setBookingLoading] = useState(false);
+    const [bookingLoadingId, setBookingLoadingId] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -57,7 +59,7 @@ const HotelPage = () => {
             setError('You need to log in to book a hotel');
             return;
         }
-        setBookingLoading(true);
+        setBookingLoadingId(hotelId);
         try {
             await ApiService.bookHotel(userId, hotelId, Number(nights));
             alert('Hotel booked successfully!');
@@ -66,13 +68,17 @@ const HotelPage = () => {
         } catch (err) {
             setError('Booking failed');
         } finally {
-            setBookingLoading(false);
+            setBookingLoadingId(null);
         }
     };
 
     return (
         <div className="hotel-page-container">
+            <div className="hotel-header">
             <h2 className="hotel-title">🏨 Find Your Perfect Stay</h2>
+            {localStorage.getItem("userRole")==="ADMIN" &&
+            (<button className="manage-hotels-btn" onClick={()=>navigate('/manage-hotels')}>Manage Hotels</button>)}
+            </div>
             <HotelSearch onSearch={handleSearch} loading={loading} />
             {error && <p className="error-message">{error}</p>}
             {loading ? (
@@ -83,7 +89,7 @@ const HotelPage = () => {
                     bookingNights={bookingNights}
                     onNightsChange={handleNightsChange}
                     onBook={handleBookHotel}
-                    bookingLoading={bookingLoading}
+                    bookingLoadingId={bookingLoadingId}
                 />
             )}
         </div>

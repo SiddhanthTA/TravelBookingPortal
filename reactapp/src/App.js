@@ -8,6 +8,14 @@ import Register from './components/Register';
 import FlightPage from './components/FlightPage';
 import HotelPage from './components/HotelPage';
 import BookingPage from './components/BookingPage';
+import ManageFlightsPage from './components/ManageFlightsPage';
+import CreateFlightPage from './components/CreateFlightPage';
+import EditFlightPage from './components/EditFlightPage';
+import ManageHotelsPage from './components/ManageHotelsPage';
+import CreateHotelPage from './components/CreateHotelPage';
+import EditHotelPage from './components/EditHotelPage';
+import ManageBookingsPage from './components/ManageBookingsPage';
+import UsersPage from './components/UsersPage';
 
 // PrivateRoute to protect pages
 const PrivateRoute = ({ children }) => {
@@ -101,6 +109,14 @@ function AppRoutes() {
                     <Route path="/flights" element={<PrivateRoute><FlightPage /></PrivateRoute>} />
                     <Route path="/hotels" element={<PrivateRoute><HotelPage /></PrivateRoute>} />
                     <Route path="/bookings" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
+                    <Route path="/manage-flights" element={<PrivateRoute><ManageFlightsPage/></PrivateRoute>}/>
+                    <Route path="/create-flight" element={<PrivateRoute><CreateFlightPage/></PrivateRoute>}/>
+                    <Route path="/edit-flight/:id" element={<PrivateRoute><EditFlightPage/></PrivateRoute>}/>
+                    <Route path="/manage-hotels" element={<PrivateRoute><ManageHotelsPage /></PrivateRoute>} />
+                    <Route path="/manage-hotels/create" element={<PrivateRoute><CreateHotelPage /></PrivateRoute>} />
+                    <Route path="/manage-hotels/edit/:id" element={<PrivateRoute><EditHotelPage /></PrivateRoute>} />
+                     <Route path="/manage-bookings" element={<PrivateRoute><ManageBookingsPage/></PrivateRoute>} />
+                     <Route path="/users" element={<PrivateRoute><UsersPage/></PrivateRoute>}/>
 
                     {/* Catch all */}
                     <Route path="*" element={<Navigate to="/login" replace />} />

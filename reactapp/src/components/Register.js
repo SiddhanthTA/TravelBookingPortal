@@ -24,14 +24,14 @@ const Register = () => {
         e.preventDefault();
         setMessage(null);
         try {
-            let response;
-            if (form.role === 'ADMIN') {
+            // let response;
+            // if (form.role === 'ADMIN') {
            
-                const { role, ...adminData } = form;
-                response = await ApiService.registerAdmin(adminData);
-            } else {
-                response = await ApiService.registerUser(form);
-            }
+            //     const { role, ...adminData } = form;
+            //     response = await ApiService.registerAdmin(adminData);
+            // } else {
+                const response = await ApiService.registerUser(form);
+            
             setMessage(response);
             if (response === 'User Registered') {
                 setForm({
@@ -110,7 +110,7 @@ const Register = () => {
                         onChange={handleChange}
                         placeholder="Optional" />
 
-                    <label htmlFor="Role">Role:</label>
+                    {/* <label htmlFor="Role">Role:</label>
                     <select
                         id="role"
                         name="role"
@@ -119,7 +119,7 @@ const Register = () => {
                     >
                         <option value="CUSTOMER">Customer</option>
                         <option value="ADMIN">Admin</option>
-                    </select>
+                    </select> */}
 
                     <button type="submit" className="btn-register">Register</button>
                 </form>

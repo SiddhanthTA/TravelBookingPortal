@@ -1,0 +1,47 @@
+.create-edit-hotel-page {
+
+max-width: 500px;
+margin: 20px auto;
+padding: 20px;
+border: 2px solid #ddd;
+border-radius: 10px;
+background-color: #f5f5f5;
+}
+
+.create-edit-hotel-page h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.create-edit-hotel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.create-edit-hotel-form input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.create-edit-hotel-form button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.create-edit-hotel-form button:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+    text-align: center;
+}

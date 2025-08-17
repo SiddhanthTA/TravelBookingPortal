@@ -95,4 +95,14 @@ public class UserService {
     {
         return repo.findOptionalByEmail(email);
     }
+
+    public boolean deleteUser(Long id)
+    {
+        if(repo.existsById(id))
+        {
+            repo.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }

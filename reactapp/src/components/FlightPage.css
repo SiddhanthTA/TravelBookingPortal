@@ -104,8 +104,9 @@
     display: flex;
     align-items: center;
     background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
+    border-radius: 30px;
     overflow: hidden;
+    flex-direction: row;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -223,11 +224,11 @@ j
 
 .flight-search-form {
 
-display: flex;
-align-items: flex-end;
-flex-wrap: wrap;
-gap: 20px;
-margin-bottom: 20px;
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .field-group {
@@ -279,4 +280,41 @@ margin-bottom: 20px;
 
 .search-btn:hover {
     background-color: #0056b3;
+}
+
+/* ------------------ ADMIN BUTTON STYLING ------------------ */
+.manage-flights-btn {
+    background-color: rgb(210, 16, 20);
+    /* Matches your title accent */
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 23px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-left: 15px;
+    /* space from title */
+    font-size: 1.3rem;
+}
+
+.manage-flights-btn:hover {
+    background-color: #c0730e;
+    transform: translateY(-2px);
+}
+
+.flight-page-title {
+    display: inline-block;
+    /* Allows title and button on the same line */
+    vertical-align: middle;
+}
+
+.flight-page-header {
+    display: flex;
+    justify-content: center;
+    /* Centers title + button together */
+    align-items: center;
+    gap: 10px;
+    /* spacing between title and button */
+    margin-bottom: 20px;
 }

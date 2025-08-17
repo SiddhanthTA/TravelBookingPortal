@@ -3,8 +3,10 @@ import FlightSearch from './FlightSearch';
 import FlightList from './FlightList';
 import ApiService from '../utils/ApiService';
 import './FlightPage.css'; // Scoped CSS for this page only
+import { useNavigate } from 'react-router-dom';
 
 function FlightPage() {
+    const navigate=useNavigate();
     const [flights, setFlights] = useState([]);
     const [loading, setLoading] = useState(false);
     const [bookingId, setBookingId] = useState(null);
@@ -60,7 +62,10 @@ function FlightPage() {
 
     return (
         <div className="flight-page">
+            <div className="flight-page-header">
             <h2 className="flight-page-title">✈ Flight Search & Booking</h2>
+            {localStorage.getItem('userRole')==='ADMIN' && (<button className="manage-flights-btn" onClick={()=>navigate('/manage-flights')}>Manage Flights</button>)}
+            </div>
             <div className="flight-search-section">
                 <FlightSearch onSearch={handleSearch} loading={loading} />
             </div>

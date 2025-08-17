@@ -1,0 +1,98 @@
+.manage-bookings-page {
+
+max-width: 900px;
+margin: 40px auto;
+padding: 0 20px 40px;
+font-family: 'Poppins',
+sans-serif;
+color: #333;
+background: #f7f9fc;
+border-radius: 12px;
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.manage-bookings-title {
+    font-weight: 600;
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ff6f00;
+    /* fiery Charizard vibe */
+    letter-spacing: 1px;
+}
+
+.bookings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.booking-card {
+    background: #fff3e0;
+    /* Charizard flame vibe */
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(255, 111, 0, 0.2);
+    border-left: 8px solid #ff6f00;
+    display: flex;
+    justify-content: space-between;
+    transition: box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+    box-shadow: 0 8px 28px rgba(255, 111, 0, 0.3);
+}
+
+.booking-info p {
+    margin: 6px 0;
+    font-size: 1rem;
+}
+
+.status {
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.status.confirmed {
+    background-color: #28a745;
+}
+
+.status.cancelled {
+    background-color: #dc3545;
+}
+
+.booking-actions .btn-cancel {
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.booking-actions .btn-cancel:hover:not(:disabled) {
+    background-color: #b52a37;
+    transform: translateY(-1px);
+}
+
+.booking-actions .btn-cancel:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.loading-text,
+.no-bookings,
+.error-text {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: 40px;
+}

@@ -101,3 +101,29 @@
     color: #666;
     margin-top: 40px;
 }
+
+.booking-header {
+
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 30px;
+}
+
+.manage-bookings-btn {
+    padding: 10px 22px;
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+.manage-bookings-btn:hover {
+    background-color: #0062cc;
+    transform: translateY(-2px);
+}
