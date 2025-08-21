@@ -1,0 +1,82 @@
+.profile-container {
+
+max-width: 600px;
+margin: 30px auto;
+padding: 20px;
+font-family: "Poppins",
+sans-serif;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.profile-card,
+.password-card {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #444;
+}
+
+.profile-card p,
+.profile-card input {
+    margin: 5px 0 10px 0;
+    font-size: 16px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.btn {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.edit-btn {
+    background: #007bff;
+    color: white;
+}
+
+.save-btn {
+    background: #28a745;
+    color: white;
+}
+
+.change-btn {
+    background: #ff9800;
+    color: white;
+    width: 100%;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.message {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background: #f1f1f1;
+    color: #333;
+}

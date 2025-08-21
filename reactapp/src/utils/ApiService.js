@@ -46,10 +46,10 @@ export const bookHotel = async (userId, hotelId, nights) => {
     return res.data;
 };
 
-export const createHotel = async (hotelData) => { 
-const res = await api.post('/hotels', hotelData);
-return res.data;
-        };
+export const createHotel = async (hotelData) => {
+    const res = await api.post('/hotels', hotelData);
+    return res.data;
+};
 
 export const updateHotel = async (id, hotelData) => {
     const res = await api.put(`/hotels/${id}`, hotelData);
@@ -114,14 +114,39 @@ export const deleteFlight = async (id) => {
     return res.data;
 };
 
-export const getAllBookings =async()=>{
+export const getAllBookings = async () => {
     const res = await api.get('/api/bookings');
+    return res.data;
+};
+
+// Get user by ID
+export const getUserById = async (userId) => {
+    const res = await api.get(`/Auth/${userId}`);
+    return res.data;
+};
+
+// Update user by ID
+export const updateUser = async (userId, userData) => {
+    const res = await api.put(`Auth/update/${userId}`, userData);
+    return res.data;
+};
+
+// Change password
+export const changePassword = async (userId, oldPassword, newPassword) => {
+    const res = await api.put(`/Auth/${userId}/change-password`, {
+        oldPassword,
+        newPassword,
+    });
     return res.data;
 };
 
 
 
+
+
 export default {
+    getUserById,
+    updateUser,
     getAllBookings,
     createHotel,
     updateHotel,
