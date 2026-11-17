@@ -1,93 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ApiService from '../utils/ApiService';
-import './BookingPage.css';
-
-const BookingList = ({ setError }) => {
-    const navigate = useNavigate();
-    const [bookings, setBookings] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [expandedBooking, setExpandedBooking] = useState(null);
-
-    useEffect(() => { fetchBookings(); }, []);
-
-    const fetchBookings = async () => {
-        try {
-            const data = await ApiService.getUserBookings();
-            setBookings(data);
-        } catch (error) {
-            setError && setError('Error fetching bookings');
-        } finally { setLoading(false); }
-    };
-
-    const handleCancel = async (id) => {
-        if (!window.confirm('Cancel this reservation? The demo will mark the payment as refund pending; no real refund is issued.')) return;
-        try {
-            setError && setError(null);
-            const updatedBooking = await ApiService.cancelBooking(id);
-            setBookings((previous) => previous.map((booking) => booking.id === id ? updatedBooking : booking));
-            if (expandedBooking?.id === id) setExpandedBooking(updatedBooking);
-        } catch (error) {
-            setError && setError(error.response?.data?.message || 'Unable to cancel this booking.');
-        }
-    };
-
-    if (loading) return <div className="loading">Loading your bookings…</div>;
-    if (!bookings?.length) return <div className="no-bookings">No bookings yet. Your next trip starts here.</div>;
-
-    return (
-        <div className="booking-list">
-            {bookings.map((booking) => (
-                <article className="booking-card" key={booking.id}>
-                    <p><strong>Reference:</strong> {booking.bookingReference}</p>
-                    <p><strong>{booking.bookingType === 'HOTEL' ? booking.hotel?.name || `Hotel #${booking.hotelId}` : booking.flight?.airline || `Flight #${booking.flightId}`}</strong></p>
-                    <p><strong>Status:</strong> <span className={`status ${(booking.status || '').toLowerCase()}`}>{booking.status}</span></p>
-                    <p><strong>Payment:</strong> {booking.paymentStatus || '—'}</p>
-                    <p><strong>Total:</strong> ₹{Number(booking.totalPrice).toLocaleString('en-IN')}</p>
-                    <div className="booking-card-actions">
-                        {booking.status === 'PENDING_PAYMENT' && <button className="more-details-btn" onClick={() => navigate(`/payment/${booking.id}`)}>Continue payment</button>}
-                        <button className="more-details-btn" onClick={() => setExpandedBooking(booking)}>More details</button>
-                        <button className="btn-cancel" data-testid={`cancel-btn-${booking.id}`} onClick={() => handleCancel(booking.id)} disabled={booking.status === 'CANCELLED' || booking.status === 'PAYMENT_FAILED'}>Cancel</button>
-                    </div>
-                </article>
-            ))}
-
-            {expandedBooking && (
-                <div className="details-modal-overlay">
-                    <div className="details-modal">
-                        <h3>Booking details</h3>
-                        <p><strong>Reference:</strong> {expandedBooking.bookingReference}</p>
-                        <p><strong>Booked for:</strong> {expandedBooking.bookingFor || '—'}</p>
-                        <p><strong>Booking date:</strong> {expandedBooking.bookingDate ? new Date(expandedBooking.bookingDate).toLocaleString() : '—'}</p>
-                        {expandedBooking.bookingType === 'HOTEL' && (
-                            <>
-                                <p><strong>Hotel:</strong> {expandedBooking.hotel?.name || `Hotel #${expandedBooking.hotelId}`}</p>
-                                <p><strong>Location:</strong> {expandedBooking.hotel?.location || '—'}</p>
-                                <p><strong>Stay:</strong> {expandedBooking.checkInDate || '—'} → {expandedBooking.checkOutDate || '—'}</p>
-                                <p><strong>Rooms / nights:</strong> {expandedBooking.rooms || 1} / {expandedBooking.nights || '—'}</p>
-                                <h4>Guests</h4>
-                                {(expandedBooking.guests || []).map((guest) => <p key={guest.id}>{guest.fullName} · Room {guest.roomNumber || 1}</p>)}
-                            </>
-                        )}
-                        {expandedBooking.bookingType === 'FLIGHT' && (
-                            <>
-                                <p><strong>Airline:</strong> {expandedBooking.flight?.airline || '—'}</p>
-                                <p><strong>Flight:</strong> {expandedBooking.flight?.flightNumber || `#${expandedBooking.flightId}`}</p>
-                                <p><strong>Route:</strong> {expandedBooking.flight?.origin || '—'} → {expandedBooking.flight?.destination || '—'}</p>
-                                <p><strong>Departure:</strong> {expandedBooking.flight?.departureTime ? new Date(expandedBooking.flight.departureTime).toLocaleString() : expandedBooking.departureDate || '—'}</p>
-                                <h4>Passengers</h4>
-                                {(expandedBooking.passengers || []).map((passenger) => <p key={passenger.id}>{passenger.fullName} · {passenger.passengerType || 'Passenger'}</p>)}
-                            </>
-                        )}
-                        <p><strong>Payment status:</strong> {expandedBooking.paymentStatus || '—'}</p>
-                        <p className="booking-policy-note"><strong>Cancellation policy:</strong> Cancellation updates the reservation status. Successful demo payments are marked refund pending; this prototype does not process real refunds.</p>
-                        <p><strong>Total:</strong> ₹{Number(expandedBooking.totalPrice).toLocaleString('en-IN')}</p>
-                        <button className="close-modal-btn" onClick={() => setExpandedBooking(null)}>Close</button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default BookingList;
+import React,{useCallback,useEffect,useMemo,useState}from'react';import{useNavigate}from'react-router-dom';import ApiService from'../utils/ApiService';import'./BookingPage.css';
+const money=v=>'₹'+Number(v||0).toLocaleString('en-IN');
+const date=v=>v?new Date(v).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const dateTime=v=>v?new Date(v).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+const upper=v=>(v||'').toUpperCase();
+export default function BookingList({setError}) {
+ const navigate=useNavigate(),[bookings,setBookings]=useState([]),[loading,setLoading]=useState(true),[type,setType]=useState('FLIGHT'),[showCancelled,setShowCancelled]=useState(false),[cancellingId,setCancellingId]=useState(null);
+ const fetchBookings=useCallback(async()=>{setLoading(true);try{const data=await ApiService.getUserBookings();setBookings(Array.isArray(data)?data:[]);if(setError)setError('');}catch(e){if(setError)setError(e.response?.data?.message||'Unable to load your bookings.');}finally{setLoading(false);}},[setError]);
+ useEffect(()=>{fetchBookings();},[fetchBookings]);
+ const typed=useMemo(()=>bookings.filter(b=>upper(b.bookingType)===type),[bookings,type]);
+ const visible=useMemo(()=>typed.filter(b=>upper(b.status)===(showCancelled?'CANCELLED':'CONFIRMED')),[typed,showCancelled]);
+ const cancelledCount=typed.filter(b=>upper(b.status)==='CANCELLED').length;
+ const cancel=async id=>{if(!window.confirm('Cancel this booking? A successful demo payment will be marked refund pending; no real refund is issued.'))return;setCancellingId(id);try{const updated=await ApiService.cancelBooking(id);setBookings(old=>old.map(b=>b.id===id?updated:b));}catch(e){if(setError)setError(e.response?.data?.message||'Unable to cancel this booking.');}finally{setCancellingId(null);}};
+ const openRelated=b=>type==='HOTEL'?navigate('/hotels',{state:{location:b.hotel?.location||''}}):navigate('/flights');
+ const renderFlight=b=>{const f=b.flight||{},people=b.passengers||[];return <><div className="booking-route"><div><span>FROM</span><strong>{f.origin||'—'}</strong><small>{dateTime(f.departureTime||b.departureDate)}</small></div><div className="booking-route-arrow">✈<i/></div><div><span>TO</span><strong>{f.destination||'—'}</strong><small>{f.arrivalTime?dateTime(f.arrivalTime):'Arrival details'}</small></div></div><div className="booking-detail-grid"><div><span>AIRLINE</span><strong>{f.airline||'Flight booking'}</strong></div><div><span>FLIGHT NUMBER</span><strong>{f.flightNumber||'—'}</strong></div><div><span>PASSENGERS</span><strong>{b.passengerCount||people.length||1}</strong></div><div><span>BOOKED ON</span><strong>{date(b.bookingDate)}</strong></div></div><div className="booking-people"><span>PASSENGERS</span><p>{people.length?people.map(p=>p.fullName).filter(Boolean).join(' · '):'Passenger details saved with booking'}</p></div></>;};
+ const renderHotel=b=>{const h=b.hotel||{},facilities=(b.facilityDetails||'').split(/[;,]/).map(x=>x.trim()).filter(Boolean);return <><div className="booking-hotel-heading"><div><span>PROPERTY</span><strong>{h.name||'Hotel reservation'}</strong><small>{h.location||'—'}{h.address?' · '+h.address:''}</small></div><span className="booking-hotel-rating">{h.rating?h.rating+' ★':h.hotelType||'Hotel'}</span></div><div className="booking-detail-grid"><div><span>CHECK-IN</span><strong>{date(b.checkInDate)}</strong><small>{b.checkInTime||'—'}</small></div><div><span>CHECK-OUT</span><strong>{date(b.checkOutDate)}</strong><small>{b.checkOutTime||'—'}</small></div><div><span>ROOMS / NIGHTS</span><strong>{(b.rooms||1)+' rooms · '+(b.nights||'—')+' nights'}</strong></div><div><span>PRIMARY GUEST</span><strong>{b.primaryGuestName||b.guests?.[0]?.fullName||'—'}</strong></div></div><div className="booking-cost-breakdown"><span>Stay {money(b.accommodationPrice)}</span><span>Facilities {money(b.facilityCharges)}</span></div>{facilities.length>0&&<div className="booking-people"><span>SELECTED FACILITIES</span><p>{facilities.join(' · ')}</p></div>}</>;};
+ return <section className="my-bookings">
+  <div className="booking-switch-row"><div className="booking-type-switch" role="tablist" aria-label="Booking type"><button type="button" role="tab" aria-selected={type==='FLIGHT'} className={type==='FLIGHT'?'active':''} onClick={()=>{setType('FLIGHT');setShowCancelled(false);}}>✈ Flight bookings <span>{bookings.filter(b=>upper(b.bookingType)==='FLIGHT'&&upper(b.status)==='CONFIRMED').length}</span></button><button type="button" role="tab" aria-selected={type==='HOTEL'} className={type==='HOTEL'?'active':''} onClick={()=>{setType('HOTEL');setShowCancelled(false);}}>▦ Hotel bookings <span>{bookings.filter(b=>upper(b.bookingType)==='HOTEL'&&upper(b.status)==='CONFIRMED').length}</span></button></div><button type="button" className="booking-refresh" onClick={fetchBookings} disabled={loading}>↻ Refresh</button></div>
+  <div className="booking-list-toolbar"><div><span className="travel-eyebrow">{showCancelled?'PAST RESERVATIONS':'YOUR TRAVEL HISTORY'}</span><h2>{showCancelled?'Cancelled bookings':type==='FLIGHT'?'Your flight bookings':'Your hotel bookings'}</h2><p>{showCancelled?'Cancelled reservations are kept here for your reference.':'Your confirmed reservations, with all important details in one place.'}</p></div><button type="button" className={showCancelled?'cancelled-toggle active':'cancelled-toggle'} onClick={()=>setShowCancelled(v=>!v)}>{showCancelled?'← Back to confirmed':'View cancelled bookings ('+cancelledCount+')'}</button></div>
+  {loading?<div className="booking-empty-state">Loading your reservations…</div>:visible.length===0?<div className="booking-empty-state"><div className="booking-empty-icon">{type==='FLIGHT'?'✈':'▦'}</div><strong>{showCancelled?'No cancelled bookings':'No confirmed '+(type==='FLIGHT'?'flight':'hotel')+' bookings yet'}</strong><p>{showCancelled?'Cancelled reservations will appear here.':'Once your booking is confirmed, it will appear here with its complete details.'}</p><button type="button" onClick={()=>navigate(type==='FLIGHT'?'/flights':'/hotels')}>Explore {type==='FLIGHT'?'flights':'hotels'}</button></div>:<div className="my-booking-cards">{visible.map(b=><article className="my-booking-card" key={b.id}><header className="my-booking-card-header"><div><span className="booking-kind-label">{type==='FLIGHT'?'FLIGHT RESERVATION':'HOTEL RESERVATION'}</span><strong>{b.bookingReference||'Booking #'+b.id}</strong></div><span className={'booking-status-pill '+(showCancelled?'cancelled':'confirmed')}>{showCancelled?'CANCELLED':'CONFIRMED'}</span></header><div className="my-booking-card-body">{type==='FLIGHT'?renderFlight(b):renderHotel(b)}</div><footer className="my-booking-card-footer"><div className="booking-payment-info"><span>TOTAL {showCancelled?'BOOKED':'PAID'}</span><strong>{money(b.totalPrice)}</strong><small>Payment: {b.paymentStatus||'—'} · Booked {date(b.bookingDate)}</small></div><div className="my-booking-actions"><button type="button" className="booking-outline-action" onClick={()=>openRelated(b)}>Explore {type==='FLIGHT'?'flights':'hotels'}</button>{!showCancelled&&<button type="button" className="booking-cancel-action" onClick={()=>cancel(b.id)} disabled={cancellingId===b.id}>{cancellingId===b.id?'Cancelling…':'Cancel booking'}</button>}</div></footer></article>)}</div>}
+ </section>;
+}
