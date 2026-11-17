@@ -18,25 +18,26 @@ public class HotelService {
         return hotelRepository.findAll();
     }
 
-    public List<Hotel> searchHotels(String location, Integer rating, Double price) {
-        boolean hasLocation = location != null && !location.isBlank();
-        if (hasLocation && rating != null && price != null) {
-            return hotelRepository.findByLocationAndRatingGreaterThanEqualAndPricePerNightLessThanEqual(
-                    location.trim(), rating, price);
-        } else if (hasLocation && rating != null) {
-            return hotelRepository.findByLocationAndRatingGreaterThanEqual(location.trim(), rating);
-        } else if (hasLocation && price != null) {
-            return hotelRepository.findByLocationAndPricePerNightLessThanEqual(location.trim(), price);
-        } else if (hasLocation) {
-            return hotelRepository.findByLocation(location.trim());
-        } else if (rating != null && price != null) {
-            return hotelRepository.findByRatingGreaterThanEqualAndPricePerNightLessThanEqual(rating, price);
-        } else if (rating != null) {
-            return hotelRepository.findByRatingGreaterThanEqual(rating);
-        } else if (price != null) {
-            return hotelRepository.findByPricePerNightLessThanEqual(price);
-        }
-        return hotelRepository.findAll();
+    public List<Hotel> searchHotels(String location, Integer rating, Double price,
+            Boolean wifi, Boolean breakfast, Boolean pool, Boolean gym, Boolean nearMainAreas) {
+        return hotelRepository.findAll().stream()
+                .filter(h -> location == null || location.isBlank()
+                        || contains(h.getName(), location) || contains(h.getLocation(), location)
+                        || contains(h.getAddress(), location))
+                .filter(h -> rating == null || h.getRating() >= rating)
+                .filter(h -> price == null || h.getPricePerNight() <= price)
+                .filter(h -> wifi == null || !wifi || h.isWifi())
+                .filter(h -> breakfast == null || !breakfast || h.isBreakfastIncluded())
+                .filter(h -> pool == null || !pool || h.isSwimmingPool())
+                .filter(h -> gym == null || !gym || h.isGym())
+                .filter(h -> nearMainAreas == null || !nearMainAreas || h.isNearMainAreas())
+                .sorted(java.util.Comparator.comparingInt(Hotel::getRating).reversed())
+                .toList();
+    }
+
+    private boolean contains(String value, String query) {
+        return value != null && value.toLowerCase(java.util.Locale.ROOT)
+                .contains(query.trim().toLowerCase(java.util.Locale.ROOT));
     }
 
     public Hotel addHotel(Hotel hotel) {
@@ -59,6 +60,13 @@ public class HotelService {
             existing.setRating(updatedHotel.getRating());
             existing.setPricePerNight(updatedHotel.getPricePerNight());
             existing.setAvailableRooms(updatedHotel.getAvailableRooms());
+            existing.setHotelType(updatedHotel.getHotelType());
+            existing.setWifi(updatedHotel.isWifi());
+            existing.setBreakfastIncluded(updatedHotel.isBreakfastIncluded());
+            existing.setSwimmingPool(updatedHotel.isSwimmingPool());
+            existing.setGym(updatedHotel.isGym());
+            existing.setNearMainAreas(updatedHotel.isNearMainAreas());
+            existing.setImageUrl(updatedHotel.getImageUrl());
             return hotelRepository.save(existing);
         }).orElse(null);
     }
