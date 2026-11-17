@@ -26,4 +26,12 @@ public class Hotel {
     private int rating;
     private double pricePerNight;
     private int availableRooms;
+    private String hotelType;
+    private boolean wifi;
+    private boolean breakfastIncluded;
+    private boolean swimmingPool;
+    private boolean gym;
+    private boolean nearMainAreas;
+    @Column(length = 1000)
+    private String imageUrl;
 }
