@@ -1,49 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { deleteUser, getAllUsers } from "../utils/ApiService";
-import "./UsersPage.css";
-
-function UsersPage() {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
-    const fetchUsers = async () => {
-        setLoading(true);
-        setError("");
-        try { setUsers(await getAllUsers()); }
-        catch (err) { setError("Unable to load users. Check the backend connection."); }
-        finally { setLoading(false); }
-    };
-
-    useEffect(() => { fetchUsers(); }, []);
-
-    const handleDelete = async (id) => {
-        if (!window.confirm("Delete this user account? This action cannot be undone.")) return;
-        try {
-            await deleteUser(id);
-            setUsers((previous) => previous.filter((user) => user.id !== id));
-        } catch (err) {
-            setError(err.response?.data?.message || "Unable to delete this user.");
-        }
-    };
-
-    return (
-        <main className="users-container">
-            <div className="users-page-heading"><div><span className="travel-eyebrow">ADMINISTRATION</span><h1>Manage users</h1><p>{users.length} registered account(s)</p></div><button onClick={fetchUsers} disabled={loading}>Refresh</button></div>
-            {error && <p className="users-error">{error}</p>}
-            {loading ? <p>Loading users…</p> : users.length === 0 ? <p>No user accounts found.</p> : (
-                <div className="users-grid">
-                    {users.map((user) => (
-                        <article key={user.id} className="user-card">
-                            <div className="user-avatar">{(user.name || "U").trim().charAt(0).toUpperCase()}</div>
-                            <div><h3>{user.name || "Unnamed user"}</h3><p>{user.email}</p><p>{user.phoneNumber || "No phone number"}</p><span className="user-role">{user.role}</span></div>
-                            <button className="delete-btn" onClick={() => handleDelete(user.id)}>Delete account</button>
-                        </article>
-                    ))}
-                </div>
-            )}
-        </main>
-    );
+import React,{useEffect,useMemo,useState}from'react';import{deleteUser,getAllUsers,registerAdmin}from'../utils/ApiService';import'./AdminConsole.css';
+const makePassword=()=>{const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';const bytes=new Uint8Array(18);window.crypto.getRandomValues(bytes);return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('');};
+export default function UsersPage(){const[users,setUsers]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[showForm,setShowForm]=useState(false),[form,setForm]=useState({name:'',email:'',phoneNumber:''}),[fieldErrors,setFieldErrors]=useState({}),[saving,setSaving]=useState(false),[createdCredential,setCreatedCredential]=useState(null);
+const load=async()=>{setLoading(true);setError('');try{setUsers(await getAllUsers());}catch(e){setError('Unable to load accounts. Check the backend connection.');}finally{setLoading(false);}};useEffect(()=>{load();},[]);
+const filtered=useMemo(()=>users.filter(u=>[u.name,u.email,u.role,u.phoneNumber].join(' ').toLowerCase().includes(query.toLowerCase())),[users,query]);
+const change=e=>{setForm(p=>({...p,[e.target.name]:e.target.value}));setFieldErrors(p=>({...p,[e.target.name]:''}));};
+const create=async e=>{e.preventDefault();const errors={};if(form.name.trim().length<2||form.name.trim().length>80)errors.name='Name must be between 2 and 80 characters.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))errors.email='Enter a valid email address.';if(form.phoneNumber&&!/^[6-9]\d{9}$/.test(form.phoneNumber))errors.phoneNumber='Enter a valid 10-digit Indian mobile number.';setFieldErrors(errors);if(Object.keys(errors).length)return;const password=makePassword();setSaving(true);setError('');try{const result=await registerAdmin({name:form.name.trim(),email:form.email.trim().toLowerCase(),phoneNumber:form.phoneNumber||null,password,role:'ADMIN'});if(result!=='User Registered')throw new Error(typeof result==='string'?result:'Admin account could not be created.');setCreatedCredential({name:form.name.trim(),email:form.email.trim().toLowerCase(),password});setForm({name:'',email:'',phoneNumber:''});setShowForm(false);await load();}catch(err){setError(err.response?.data?.message||err.message||'Unable to create administrator.');}finally{setSaving(false);}};
+const remove=async u=>{if(String(u.id)===localStorage.getItem('userId')){setError('You cannot delete the administrator account currently signed in.');return;}if(!window.confirm('Delete '+u.name+'? This action cannot be undone.'))return;try{await deleteUser(u.id);setUsers(p=>p.filter(x=>x.id!==u.id));}catch(e){setError(e.response?.data?.message||'Unable to delete this account.');}};
+return <main className="admin-console"><div className="admin-page-heading"><div><span className="admin-eyebrow">ADMINISTRATION · ACCESS CONTROL</span><h1>Manage users</h1><p>Review customer accounts and manage administrator access.</p></div><button className="admin-btn admin-btn-primary" onClick={()=>setShowForm(v=>!v)}>{showForm?'Close form':'＋ Create administrator'}</button></div><div className="admin-stat-row"><div className="admin-stat"><span>Total accounts</span><strong>{users.length}</strong></div><div className="admin-stat"><span>Customers</span><strong>{users.filter(u=>u.role==='CUSTOMER').length}</strong></div><div className="admin-stat"><span>Administrators</span><strong>{users.filter(u=>u.role==='ADMIN').length}</strong></div></div>{error&&<div className="admin-alert">{error}</div>}{showForm&&<form className="admin-form-card" onSubmit={create} noValidate><div className="admin-form-section"><h2>Create administrator account</h2><p>A strong temporary password is generated automatically and displayed only once after creation.</p><div className="admin-form-grid"><Field name="name" label="Administrator name" value={form.name} onChange={change} error={fieldErrors.name} placeholder="Full name"/><Field name="email" label="Email address" type="email" value={form.email} onChange={change} error={fieldErrors.email} placeholder="admin@example.com"/><Field name="phoneNumber" label="Phone number (optional)" value={form.phoneNumber} onChange={change} error={fieldErrors.phoneNumber} placeholder="10-digit mobile number"/></div></div><div className="admin-form-actions"><button type="button" className="admin-btn admin-btn-secondary" onClick={()=>setShowForm(false)}>Cancel</button><button className="admin-btn admin-btn-primary" disabled={saving}>{saving?'Creating account…':'Generate password & create admin'}</button></div></form>}<div className="admin-toolbar" style={{marginTop:22}}><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search by name, email or role…"/><button className="admin-btn admin-btn-secondary" onClick={load} disabled={loading}>↻ Refresh</button></div>{loading?<p>Loading accounts…</p>:!filtered.length?<div className="admin-empty">No accounts match this search.</div>:<div className="admin-user-grid">{filtered.map(u=><article className="admin-user-card" key={u.id}><div className="admin-user-avatar">{(u.name||'U').trim().charAt(0).toUpperCase()}</div><div className="admin-user-content"><h3>{u.name||'Unnamed user'}</h3><p>{u.email}</p><p>{u.phoneNumber||'No phone number'}</p><span className="admin-role-pill">{u.role==='ADMIN'?'ADMINISTRATOR':'CUSTOMER'}</span></div><button className="admin-btn admin-btn-danger" onClick={()=>remove(u)}>Delete</button></article>)}</div>}{createdCredential&&<div className="admin-modal-backdrop"><section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="created-admin-title"><span className="admin-eyebrow">ACCOUNT CREATED</span><h2 id="created-admin-title">Administrator credentials</h2><p>Share these credentials securely with <strong>{createdCredential.name}</strong>. The generated password will not be shown again after you close this window.</p><p><strong>Email / username</strong><br/>{createdCredential.email}</p><p><strong>Temporary password</strong></p><div className="admin-generated-password">{createdCredential.password}</div><p>Ask the new administrator to sign in and change this password immediately. Do not refresh or close this dialog until you have copied it.</p><div className="admin-modal-actions"><button className="admin-btn admin-btn-primary" onClick={()=>setCreatedCredential(null)}>I have saved the password</button></div></section></div>}</main>;
 }
-
-export default UsersPage;
+function Field({name,label,error,...props}){return <div className="admin-field"><label htmlFor={'admin-'+name}>{label}</label><input id={'admin-'+name} name={name} {...props} className={error?'invalid':''}/>{error&&<small className="admin-field-error">{error}</small>}</div>}
