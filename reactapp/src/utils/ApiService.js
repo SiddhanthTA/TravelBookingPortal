@@ -142,7 +142,35 @@ export const changePassword = async (userId, oldPassword, newPassword) => {
 
 
 
+export const getFlightById = async (flightId) => {
+    const res = await api.get(`/flights/${flightId}`);
+    return res.data;
+};
 
+export const getHotelById = async (hotelId) => {
+    const res = await api.get(`/hotels/${hotelId}`);
+    return res.data;
+};
+
+export const createFlightCheckout = async (payload) => {
+    const res = await api.post('/api/bookings/flight/checkout', payload);
+    return res.data;
+};
+
+export const createHotelCheckout = async (payload) => {
+    const res = await api.post('/api/bookings/hotel/checkout', payload);
+    return res.data;
+};
+
+export const simulatePayment = async (bookingId, paymentMethod) => {
+    const res = await api.post(`/api/bookings/${bookingId}/pay`, { paymentMethod });
+    return res.data;
+};
+
+export const getBookingById = async (bookingId) => {
+    const res = await api.get(`/api/bookings/${bookingId}`);
+    return res.data;
+};
 
 export default {
     getUserById,
