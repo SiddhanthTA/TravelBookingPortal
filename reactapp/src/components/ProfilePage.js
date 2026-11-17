@@ -11,7 +11,6 @@ const emptyProfile = {
 };
 
 
-const states = Object.keys(stateCities);
 const today = new Date();
 const maxDob = today.toISOString().slice(0, 10);
 const minDobDate = new Date(today);
