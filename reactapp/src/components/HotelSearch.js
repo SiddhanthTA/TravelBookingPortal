@@ -1,48 +1,13 @@
-import React, { useState } from 'react';
-import './HotelPage.css';
-
-function HotelSearch({ onSearch, loading }) {
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-    const dayAfter = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
-    const [location, setLocation] = useState('');
-    const [minRating, setMinRating] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
-    const [checkInDate, setCheckInDate] = useState(tomorrow);
-    const [checkOutDate, setCheckOutDate] = useState(dayAfter);
-    const [rooms, setRooms] = useState(1);
-    const [guests, setGuests] = useState(1);
-    const [errors, setErrors] = useState({});
-
-    const handleSearch = (event) => {
-        event.preventDefault();
-        const nextErrors = {};
-        if (!location.trim()) nextErrors.location = 'Select location';
-        if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) nextErrors.dates = 'Check-out must be after check-in';
-        if (checkInDate < today) nextErrors.dates = 'Check-in cannot be in the past';
-        if (Number(rooms) < 1 || Number(rooms) > 10) nextErrors.rooms = 'Choose 1 to 10 rooms';
-        if (Number(guests) < 1 || Number(guests) > 20) nextErrors.guests = 'Choose 1 to 20 guests';
-        if (maxPrice && Number(maxPrice) < 0) nextErrors.price = 'Price should be positive';
-        setErrors(nextErrors);
-        if (!Object.keys(nextErrors).length) {
-            onSearch(location.trim(), minRating ? Number(minRating) : null, maxPrice ? Number(maxPrice) : null, {
-                checkInDate, checkOutDate, rooms: Number(rooms), guests: Number(guests)
-            });
-        }
-    };
-
-    return (
-        <form className="hotel-search" onSubmit={handleSearch}>
-            <div className="search-group"><label htmlFor="location-input">Location</label><input id="location-input" data-testid="location-input" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City or destination" />{errors.location && <p className="error-message">{errors.location}</p>}</div>
-            <div className="search-group"><label htmlFor="check-in">Check-in</label><input id="check-in" type="date" min={today} value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} /></div>
-            <div className="search-group"><label htmlFor="check-out">Check-out</label><input id="check-out" type="date" min={checkInDate || today} value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />{errors.dates && <p className="error-message">{errors.dates}</p>}</div>
-            <div className="search-group"><label htmlFor="rooms-input">Rooms</label><input id="rooms-input" type="number" min="1" max="10" value={rooms} onChange={(e) => setRooms(e.target.value)} />{errors.rooms && <p className="error-message">{errors.rooms}</p>}</div>
-            <div className="search-group"><label htmlFor="guests-input">Guests</label><input id="guests-input" type="number" min="1" max="20" value={guests} onChange={(e) => setGuests(e.target.value)} />{errors.guests && <p className="error-message">{errors.guests}</p>}</div>
-            <div className="search-group"><label htmlFor="min-rating-input">Minimum Rating</label><select id="min-rating-input" data-testid="min-rating-input" value={minRating} onChange={(e) => setMinRating(e.target.value)}><option value="">Any rating</option>{[3,4,5].map((rating) => <option key={rating} value={rating}>{rating}+ stars</option>)}</select></div>
-            <div className="search-group"><label htmlFor="max-price-input">Maximum Price per Night (₹)</label><input id="max-price-input" type="number" min="0" data-testid="max-price-input" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />{errors.price && <p className="error-message">{errors.price}</p>}</div>
-            <button data-testid="search-hotel-btn" className="search-btn" type="submit" disabled={loading}>{loading ? 'Searching…' : 'Search stays'}</button>
-        </form>
-    );
-}
-
-export default HotelSearch;
+import React,{useEffect,useState}from'react';import'./HotelPage.css';
+const initialAmenities={wifi:false,breakfast:false,pool:false,gym:false,nearMainAreas:false};
+export default function HotelSearch({onSearch,loading,defaultLocation=''}){const[location,setLocation]=useState(defaultLocation);const[minRating,setMinRating]=useState('');const[maxPrice,setMaxPrice]=useState('');const[amenities,setAmenities]=useState(initialAmenities);const[error,setError]=useState('');
+useEffect(()=>{setLocation(defaultLocation||'');},[defaultLocation]);
+const toggle=k=>setAmenities(v=>({...v,[k]:!v[k]}));
+const submit=e=>{e.preventDefault();if(maxPrice&&(!Number.isFinite(Number(maxPrice))||Number(maxPrice)<=0)){setError('Maximum price must be greater than zero.');return;}setError('');onSearch(location.trim(),minRating?Number(minRating):null,maxPrice?Number(maxPrice):null,amenities);};
+return <form className="hotel-search" onSubmit={submit}>
+<div className="search-group hotel-location-field"><label htmlFor="hotel-location">Hotel name or location</label><input id="hotel-location" data-testid="location-input" value={location} onChange={e=>setLocation(e.target.value)} placeholder="Search hotel, city or area"/></div>
+<div className="search-group"><label htmlFor="hotel-rating">Minimum rating</label><select id="hotel-rating" value={minRating} onChange={e=>setMinRating(e.target.value)}><option value="">Any rating</option>{[3,4,5].map(n=><option key={n} value={n}>{n}+ stars</option>)}</select></div>
+<div className="search-group"><label htmlFor="hotel-price">Maximum price per night (₹)</label><input id="hotel-price" data-testid="max-price-input" type="number" min="1" value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} placeholder="No limit"/></div>
+<fieldset className="hotel-amenity-filters"><legend>Filter by amenities</legend>{[['wifi','Wi-Fi'],['breakfast','Breakfast included'],['pool','Swimming pool'],['gym','Gym'],['nearMainAreas','Close to main areas']].map(([key,label])=><label className="amenity-checkbox" key={key}><input type="checkbox" checked={amenities[key]} onChange={()=>toggle(key)}/><span>{label}</span></label>)}</fieldset>
+{error&&<p className="hotel-search-error">{error}</p>}<div className="hotel-search-actions"><button type="button" className="hotel-reset-btn" onClick={()=>{setLocation('');setMinRating('');setMaxPrice('');setAmenities(initialAmenities);setError('');onSearch('',null,null,initialAmenities);}}>Clear filters</button><button data-testid="search-hotel-btn" className="search-btn" type="submit" disabled={loading}>{loading?'Searching…':'Search hotels'}</button></div>
+</form>}
