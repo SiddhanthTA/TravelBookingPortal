@@ -87,3 +87,13 @@
     .checkout-actions button { width: 100%; }
     .confirmation-card { padding: 25px 17px; }
 }
+
+
+.confirmation-recommendations { margin-top: 22px; padding: 18px; border-radius: 12px; background: #f4f8fc; text-align: left; }
+.confirmation-recommendations h3 { margin: 5px 0; color: #203b59; }
+.confirmation-recommendations > p { color: #718198; font-size: 12px; }
+.recommended-hotel-list { display: grid; gap: 8px; margin: 12px 0; }
+.recommended-hotel { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid #e0e8f0; border-radius: 8px; background: white; }
+.recommended-hotel strong { color: #294662; font-size: 13px; }
+.recommended-hotel span { color: #728198; font-size: 12px; }
+@media (max-width: 520px) { .recommended-hotel { flex-direction: column; } }
