@@ -133,7 +133,7 @@ public class BookingService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose UPI, CARD or NET_BANKING");
         }
 
-        Booking booking = bookingRepository.findById(bookingId)
+        Booking booking = bookingRepository.findByIdForUpdate(bookingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
         if (!"PENDING_PAYMENT".equals(booking.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This booking is not awaiting payment");
@@ -141,7 +141,7 @@ public class BookingService {
 
         // Inventory is checked and committed only when the demo payment succeeds.
         if ("FLIGHT".equals(booking.getBookingType())) {
-            Flight flight = flightRepository.findById(booking.getFlightId())
+            Flight flight = flightRepository.findByIdForUpdate(booking.getFlightId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flight not found"));
             if (flight.getAvailableSeats() < booking.getPassengerCount()) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Seats are no longer available. Please search again.");
@@ -149,7 +149,7 @@ public class BookingService {
             flight.setAvailableSeats(flight.getAvailableSeats() - booking.getPassengerCount());
             flightRepository.save(flight);
         } else if ("HOTEL".equals(booking.getBookingType())) {
-            Hotel hotel = hotelRepository.findById(booking.getHotelId())
+            Hotel hotel = hotelRepository.findByIdForUpdate(booking.getHotelId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
             // availableRooms is the hotel's total room inventory. Overlapping confirmed stays are counted by date.
             long occupied = bookingRepository.countOverlappingHotelRooms(
