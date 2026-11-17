@@ -2,6 +2,7 @@ package com.examly.springapp.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,13 @@ public class Booking {
     private int rooms;
     private int passengerCount;
     private int guestCount;
+    private String primaryGuestName;
+    private LocalTime checkInTime;
+    private LocalTime checkOutTime;
+    private double accommodationPrice;
+    private double facilityCharges;
+    @Column(length = 2000)
+    private String facilityDetails;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ManyToOne
