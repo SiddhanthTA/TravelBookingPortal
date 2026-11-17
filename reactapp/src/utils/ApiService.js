@@ -218,5 +218,11 @@ export default {
     getAllFlights,
     bookFlight,
     bookHotel,
-    getAllHotels
+    getAllHotels,
+    getFlightById,
+    getHotelById,
+    createFlightCheckout,
+    createHotelCheckout,
+    simulatePayment,
+    getBookingById
 };
