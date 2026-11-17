@@ -160,7 +160,7 @@ public class DataInitializer implements CommandLineRunner {
                     if (property.getHotelType() == null) property.setHotelType(property.getRating() + " Star");
                     if (property.getImageUrl() == null) property.setImageUrl(propertyPhotos[Math.floorMod(property.getName().hashCode(), propertyPhotos.length)]);
                     if (property.getAddress() == null || property.getAddress().isBlank()) property.setAddress("Central area, " + property.getLocation());
-                    if (property.getHotelType() != null && property.getImageUrl() != null && property.getWifi() == false) {
+                    if (property.getHotelType() != null && property.getImageUrl() != null && property.isWifi() == false) {
                         property.setWifi(true);
                         property.setBreakfastIncluded(true);
                         property.setSwimmingPool(property.getRating() >= 4);
