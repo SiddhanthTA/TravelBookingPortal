@@ -14,6 +14,7 @@ import com.examly.springapp.model.Flight;
 
 public interface FlightRepository extends JpaRepository<Flight, Long> {
     List<Flight> findByOriginAndDestination(String origin, String destination);
+    boolean existsByFlightNumber(String flightNumber);
     List<Flight> findByOriginAndDestinationAndDepartureTimeBetween(String origin, String destination, LocalDateTime start, LocalDateTime end);
     List<Flight> findByAirline(String airline);
     List<Flight> findByPriceLessThanEqual(double price);
