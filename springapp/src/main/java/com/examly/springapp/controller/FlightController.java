@@ -44,7 +44,7 @@ public class FlightController {
     }
 
     @GetMapping("/search")
-    public List<Flight> searchFlights(@RequestParam String origin,@RequestParam String destination,@RequestParam(required=false) String departureDate)
+    public List<Flight> searchFlights(@RequestParam String origin,@RequestParam(required=false) String destination,@RequestParam(required=false) String departureDate)
     {
         return flightService.searchFlightsByDate(origin, destination,departureDate);
     }
