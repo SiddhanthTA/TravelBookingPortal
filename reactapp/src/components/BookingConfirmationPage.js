@@ -7,10 +7,16 @@ export default function BookingConfirmationPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [booking, setBooking] = useState(null);
-    const [error, setError] = useState('');\n    const [recommendedHotels, setRecommendedHotels] = useState([]);
+    const [error, setError] = useState('');
+    const [recommendedHotels, setRecommendedHotels] = useState([]);
 
     useEffect(() => {
-        getBookingById(id).then(async (data) => {\n            setBooking(data);\n            if (data.bookingType === 'FLIGHT' && data.flight?.destination) {\n                try { setRecommendedHotels(await fetchHotels(data.flight.destination, null, null)); } catch (ignored) { setRecommendedHotels([]); }\n            }\n        }).catch(() => setError('Unable to load booking confirmation.'));
+        getBookingById(id).then(async (data) => {
+            setBooking(data);
+            if (data.bookingType === 'FLIGHT' && data.flight?.destination) {
+                try { setRecommendedHotels(await fetchHotels(data.flight.destination, null, null)); } catch (ignored) { setRecommendedHotels([]); }
+            }
+        }).catch(() => setError('Unable to load booking confirmation.'));
     }, [id]);
 
     if (!booking) return <main className="checkout-page"><p>{error || 'Loading confirmation…'}</p></main>;
