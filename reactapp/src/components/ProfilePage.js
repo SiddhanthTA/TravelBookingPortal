@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getUserById, updateUser, changePassword, uploadProfileImage } from "../utils/ApiService";
 import { BASE_URL } from "../utils/constants";
 import "./ProfilePage.css";
+import { stateCities, states } from "../utils/indianLocations";
 
 const emptyProfile = {
     name: "", email: "", phoneNumber: "", dateOfBirth: "", gender: "",
@@ -9,44 +10,7 @@ const emptyProfile = {
     preferredTravelClass: "", preferredSeat: "", dietaryPreference: ""
 };
 
-const stateCities = {
-    "Andhra Pradesh": ["Amaravati", "Visakhapatnam", "Vijayawada", "Guntur", "Tirupati"],
-    "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Tawang"],
-    "Assam": ["Dispur", "Guwahati", "Dibrugarh", "Silchar"],
-    "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur"],
-    "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur", "Korba"],
-    "Goa": ["Panaji", "Margao", "Vasco da Gama"],
-    "Gujarat": ["Gandhinagar", "Ahmedabad", "Surat", "Vadodara", "Rajkot"],
-    "Haryana": ["Chandigarh", "Gurugram", "Faridabad", "Panipat", "Ambala"],
-    "Himachal Pradesh": ["Shimla", "Dharamshala", "Mandi", "Solan"],
-    "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad", "Bokaro"],
-    "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"],
-    "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kannur"],
-    "Madhya Pradesh": ["Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain"],
-    "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Chhatrapati Sambhajinagar"],
-    "Manipur": ["Imphal", "Thoubal", "Churachandpur"],
-    "Meghalaya": ["Shillong", "Tura", "Jowai"],
-    "Mizoram": ["Aizawl", "Lunglei", "Champhai"],
-    "Nagaland": ["Kohima", "Dimapur", "Mokokchung"],
-    "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela", "Puri"],
-    "Punjab": ["Chandigarh", "Ludhiana", "Amritsar", "Jalandhar", "Patiala"],
-    "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
-    "Sikkim": ["Gangtok", "Namchi", "Gyalshing"],
-    "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tiruppur", "Erode", "Vellore"],
-    "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar"],
-    "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
-    "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Noida", "Prayagraj", "Ghaziabad"],
-    "Uttarakhand": ["Dehradun", "Haridwar", "Rishikesh", "Haldwani"],
-    "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Siliguri", "Asansol"],
-    "Andaman and Nicobar Islands": ["Sri Vijaya Puram", "Diglipur"],
-    "Chandigarh": ["Chandigarh"],
-    "Dadra and Nagar Haveli and Daman and Diu": ["Daman", "Silvassa", "Diu"],
-    "Delhi": ["New Delhi", "Delhi"],
-    "Jammu and Kashmir": ["Srinagar", "Jammu", "Anantnag"],
-    "Ladakh": ["Leh", "Kargil"],
-    "Lakshadweep": ["Kavaratti", "Agatti"],
-    "Puducherry": ["Puducherry", "Karaikal"]
-};
+
 const states = Object.keys(stateCities);
 const today = new Date();
 const maxDob = today.toISOString().slice(0, 10);
