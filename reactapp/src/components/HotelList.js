@@ -1,31 +1,4 @@
-import React from 'react';
-import './HotelPage.css';
-
-const hotelImages = [
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=700",
-    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=700",
-    "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=700",
-    "https://images.unsplash.com/photo-1560347876-aeef00ee58a1?w=700"
-];
-
-const HotelList = ({ hotels, onBook, bookingLoadingId }) => {
-    if (!hotels.length) return <p className="no-results">No stays match your search. Try a different destination or filters.</p>;
-    return (
-        <div className="hotel-list">
-            {hotels.map((hotel, index) => (
-                <article className="hotel-card" key={hotel.id}>
-                    <img src={hotelImages[index % hotelImages.length]} alt={hotel.name} className="hotel-image" />
-                    <div className="hotel-info">
-                        <div className="hotel-card-heading"><h3>{hotel.name}</h3><span>{hotel.rating} ★</span></div>
-                        <p><strong>Location:</strong> {hotel.location}</p>
-                        <p>{hotel.address}</p>
-                        <p><strong>Rooms in inventory:</strong> {hotel.availableRooms}</p>
-                        <div className="hotel-card-footer"><strong>₹{Number(hotel.pricePerNight).toLocaleString('en-IN')} <small>/ night</small></strong><button onClick={() => onBook(hotel.id)} disabled={bookingLoadingId === hotel.id}>{bookingLoadingId === hotel.id ? 'Opening…' : 'Choose stay'}</button></div>
-                    </div>
-                </article>
-            ))}
-        </div>
-    );
-};
-
-export default HotelList;
+import React from'react';import'./HotelPage.css';
+const fallbackPhotos=['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=900&auto=format&fit=crop&q=80'];
+export default function HotelList({hotels,onBook,bookingLoadingId}){if(!hotels?.length)return <div className="hotel-no-results"><strong>No hotels match these filters</strong><span>Try a different city, price range or amenity combination.</span></div>;
+return <div className="hotel-list">{hotels.map((h,i)=>{const amenities=[h.wifi&&'Wi-Fi',h.breakfastIncluded&&'Breakfast included',h.swimmingPool&&'Swimming pool',h.gym&&'Gym',h.nearMainAreas&&'Near main areas'].filter(Boolean);return <article className="hotel-card" key={h.id}><div className="hotel-card-image-wrap"><img src={h.imageUrl||fallbackPhotos[i%fallbackPhotos.length]} alt={h.name+' property'} className="hotel-image" loading="lazy"/><span className="hotel-category-badge">{h.hotelType||h.rating+' Star'}</span></div><div className="hotel-info"><div className="hotel-card-heading"><div><h3>{h.name}</h3><p className="hotel-location-line">{h.location} · {h.address}</p></div><span>{h.rating} ★</span></div><div className="hotel-amenity-list">{amenities.length?amenities.map(a=><span key={a} className="hotel-amenity-chip">{a}</span>):<span className="hotel-amenity-chip muted">Comfortable stay</span>}</div><div className="hotel-card-footer"><div><strong>₹{Number(h.pricePerNight).toLocaleString('en-IN')}</strong><small>/ room / night</small></div><button onClick={()=>onBook(h.id)} disabled={bookingLoadingId===h.id}>{bookingLoadingId===h.id?'Opening…':'Book hotel'}</button></div></div></article>;})}</div>}
