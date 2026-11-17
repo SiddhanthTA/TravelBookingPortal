@@ -1,4 +1,4 @@
-const stateCities = {
+export const stateCities = {
     "Andhra Pradesh": ["Amaravati", "Visakhapatnam", "Vijayawada", "Guntur", "Tirupati"],
     "Arunachal Pradesh": ["Itanagar", "Naharlagun", "Tawang"],
     "Assam": ["Dispur", "Guwahati", "Dibrugarh", "Silchar"],
