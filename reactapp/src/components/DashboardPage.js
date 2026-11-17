@@ -52,7 +52,7 @@ export default function DashboardPage() {
                     <div className="dashboard-panel-heading"><div><span className="travel-eyebrow">WHAT'S NEXT</span><h2>Upcoming journeys</h2></div><button onClick={() => navigate('/bookings')}>All bookings</button></div>
                     {loading ? <p className="dashboard-muted">Loading your journeys…</p> : upcoming.length ? upcoming.slice(0, 3).map((booking) => (
                         <article className="dashboard-trip" key={booking.id}>
-                            <div className="dashboard-trip-icon">{booking.bookingType === 'FLIGHT' ? '✈' : '⌂'}</div>
+                            <div className="dashboard-trip-icon">{booking.bookingType === 'FLIGHT' ? 'AIR' : 'STAY'}</div>
                             <div><strong>{booking.bookingType === 'FLIGHT' ? `${booking.flight?.origin || 'Departure'} → ${booking.flight?.destination || 'Destination'}` : booking.hotel?.name || 'Hotel stay'}</strong><span>{booking.bookingType === 'FLIGHT' ? new Date(booking.tripDate).toLocaleString() : `${booking.checkInDate} → ${booking.checkOutDate}`}</span><small>{booking.bookingReference}</small></div>
                             <span className="dashboard-status">{booking.status}</span>
                         </article>
