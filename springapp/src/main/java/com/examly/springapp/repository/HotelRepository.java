@@ -13,6 +13,7 @@ import com.examly.springapp.model.Hotel;
 
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
     List<Hotel> findByLocation(String location);
+    boolean existsByName(String name);
     List<Hotel> findByRatingGreaterThanEqual(int rating);
     List<Hotel> findByPricePerNightLessThanEqual(double price);
     List<Hotel> findByLocationAndRatingGreaterThanEqualAndPricePerNightLessThanEqual(String location, Integer rating, Double price);
