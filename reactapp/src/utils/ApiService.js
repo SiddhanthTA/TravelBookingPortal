@@ -78,10 +78,7 @@ export const registerUser = async (userData) => {
 
 // Login user
 export const loginUser = async (email, password) => {
-    // backend expects POST with email & pass as query params
-    const res = await api.post('/Auth/check', null, {
-        params: { email, pass: password },
-    });
+    const res = await api.post('/Auth/check', { email, password });
     return res.data;
 };
 
