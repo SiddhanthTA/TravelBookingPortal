@@ -1,53 +1,12 @@
-import React, { useState } from 'react';
-import ApiService from '../utils/ApiService';
-import { useNavigate } from 'react-router-dom';
-import './CreateEditFlight.css'; // shared CSS for create/edit
-
-function CreateFlightPage() {
-    const navigate = useNavigate();
-    const [flightData, setFlightData] = useState({
-        flightNumber: '',
-        airline: '',
-        origin: '',
-        destination: '',
-        departureTime: '',
-        arrivalTime: '',
-        price: '',
-        availableSeats: ''
-    });
-    const [error, setError] = useState('');
-
-    const handleChange = (e) => {
-        setFlightData({ ...flightData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await ApiService.createFlight(flightData);
-            navigate('/manage-flights');
-        } catch (err) {
-            setError('Failed to create flight. Check all fields.');
-        }
-    };
-
-    return (
-        <div className="create-edit-flight-page">
-            <h2>Create New Flight</h2>
-            {error && <div className="error-message">{error}</div>}
-            <form onSubmit={handleSubmit} className="create-edit-flight-form">
-                <input type="text" name="flightNumber" placeholder="Flight Number" onChange={handleChange} required />
-                <input type="text" name="airline" placeholder="Airline" onChange={handleChange} required />
-                <input type="text" name="origin" placeholder="Origin" onChange={handleChange} required />
-                <input type="text" name="destination" placeholder="Destination" onChange={handleChange} required />
-                <input type="datetime-local" name="departureTime" onChange={handleChange} required />
-                <input type="datetime-local" name="arrivalTime" onChange={handleChange} required />
-                <input type="number" name="price" placeholder="Price" onChange={handleChange} required />
-                <input type="number" name="availableSeats" placeholder="Available Seats" onChange={handleChange} required />
-                <button type="submit">Create Flight</button>
-            </form>
-        </div>
-    );
+import React,{useEffect,useState}from'react';import{useNavigate,useParams}from'react-router-dom';import ApiService from'../utils/ApiService';import'./AdminConsole.css';
+const blank={flightNumber:'',airline:'',origin:'',destination:'',departureTime:'',arrivalTime:'',price:'',availableSeats:''};
+const localDateTime=v=>v?String(v).slice(0,16):'';
+function validate(d,editing){const e={};if(!/^[A-Z0-9-]{2,12}$/i.test(d.flightNumber.trim()))e.flightNumber='Use 2–12 letters, numbers or hyphens.';if(d.airline.trim().length<2||d.airline.trim().length>80)e.airline='Airline name must be 2–80 characters.';if(d.origin.trim().length<2)e.origin='Enter a valid origin city.';if(d.destination.trim().length<2)e.destination='Enter a valid destination city.';if(d.origin.trim().toLowerCase()===d.destination.trim().toLowerCase())e.destination='Origin and destination must be different.';if(!d.departureTime)e.departureTime='Choose a departure date and time.';if(!d.arrivalTime)e.arrivalTime='Choose an arrival date and time.';if(d.departureTime&&d.arrivalTime&&new Date(d.arrivalTime)<=new Date(d.departureTime))e.arrivalTime='Arrival must be after departure.';if(!editing&&d.departureTime&&new Date(d.departureTime)<=new Date())e.departureTime='A new flight must depart in the future.';if(d.price===''||!Number.isFinite(Number(d.price))||Number(d.price)<=0)e.price='Enter a fare greater than ₹0.';if(d.availableSeats===''||!Number.isInteger(Number(d.availableSeats))||Number(d.availableSeats)<0||Number(d.availableSeats)>1000)e.availableSeats='Seats must be a whole number from 0 to 1,000.';return e;}
+export default function FlightFormPage(){const{id}=useParams(),editing=Boolean(id),navigate=useNavigate(),[data,setData]=useState(blank),[errors,setErrors]=useState({}),[serverError,setServerError]=useState(''),[loading,setLoading]=useState(editing),[saving,setSaving]=useState(false);
+useEffect(()=>{if(!editing)return;ApiService.getFlightById(id).then(f=>{if(!f){setServerError('Flight not found.');return;}setData({...f,departureTime:localDateTime(f.departureTime),arrivalTime:localDateTime(f.arrivalTime)});}).catch(()=>setServerError('Unable to load this flight.')).finally(()=>setLoading(false));},[id,editing]);
+const change=e=>{setData(p=>({...p,[e.target.name]:e.target.value}));setErrors(p=>({...p,[e.target.name]:''}));};
+const submit=async e=>{e.preventDefault();const next=validate(data,editing);setErrors(next);setServerError('');if(Object.keys(next).length)return;setSaving(true);try{const payload={...data,flightNumber:data.flightNumber.trim().toUpperCase(),airline:data.airline.trim(),origin:data.origin.trim(),destination:data.destination.trim(),price:Number(data.price),availableSeats:Number(data.availableSeats)};if(editing)await ApiService.updateFlight(id,payload);else await ApiService.createFlight(payload);navigate('/manage-flights');}catch(err){setServerError(err.response?.data?.message||'Could not save the flight. Check the details and try again.');}finally{setSaving(false);}};
+if(loading)return <main className="admin-console"><p>Loading flight details…</p></main>;
+return <main className="admin-console"><div className="admin-page-heading"><div><span className="admin-eyebrow">FLIGHT OPERATIONS</span><h1>{editing?'Edit flight':'Create a flight'}</h1><p>{editing?'Update the schedule, route, fare and available seat inventory.':'Add a new route to the domestic flight inventory.'}</p></div><button className="admin-btn admin-btn-secondary" type="button" onClick={()=>navigate('/manage-flights')}>← Back to flights</button></div>{serverError&&<div className="admin-alert">{serverError}</div>}<form className="admin-form-card" onSubmit={submit} noValidate><div className="admin-form-section"><h2>Flight identification</h2><p>Basic details passengers use to identify the service.</p><div className="admin-form-grid"><Field name="flightNumber" label="Flight number" value={data.flightNumber} onChange={change} error={errors.flightNumber} placeholder="e.g. AI101"/><Field name="airline" label="Airline" value={data.airline} onChange={change} error={errors.airline} placeholder="e.g. Air India"/><Field name="origin" label="Origin city" value={data.origin} onChange={change} error={errors.origin} placeholder="e.g. Delhi"/><Field name="destination" label="Destination city" value={data.destination} onChange={change} error={errors.destination} placeholder="e.g. Mumbai"/></div></div><div className="admin-form-section"><h2>Schedule</h2><p>Arrival must be later than departure.</p><div className="admin-form-grid"><Field name="departureTime" label="Departure date & time" type="datetime-local" value={data.departureTime} onChange={change} error={errors.departureTime}/><Field name="arrivalTime" label="Arrival date & time" type="datetime-local" value={data.arrivalTime} onChange={change} error={errors.arrivalTime}/></div></div><div className="admin-form-section"><h2>Fare & capacity</h2><div className="admin-form-grid"><Field name="price" label="Fare per passenger (₹)" type="number" min="1" step="0.01" value={data.price} onChange={change} error={errors.price} placeholder="5000"/><Field name="availableSeats" label="Available seats" type="number" min="0" max="1000" step="1" value={data.availableSeats} onChange={change} error={errors.availableSeats} placeholder="180"/></div></div><div className="admin-form-actions"><button type="button" className="admin-btn admin-btn-secondary" onClick={()=>navigate('/manage-flights')}>Cancel</button><button className="admin-btn admin-btn-primary" disabled={saving}>{saving?(editing?'Saving…':'Creating…'):(editing?'Save flight changes':'Create flight')}</button></div></form></main>;
 }
-
-export default CreateFlightPage;
+function Field({name,label,error,...props}){return <div className="admin-field"><label htmlFor={name}>{label}</label><input id={name} name={name} {...props} className={error?'invalid':''}/>{error&&<small className="admin-field-error">{error}</small>}</div>}
