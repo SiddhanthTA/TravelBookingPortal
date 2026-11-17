@@ -97,3 +97,11 @@
 .recommended-hotel strong { color: #294662; font-size: 13px; }
 .recommended-hotel span { color: #728198; font-size: 12px; }
 @media (max-width: 520px) { .recommended-hotel { flex-direction: column; } }
+
+
+@media print {
+    body { background: white !important; }
+    .header, .checkout-actions, .confirmation-recommendations button { display: none !important; }
+    .checkout-page { max-width: 100%; margin: 0; padding: 0; }
+    .confirmation-card { border: 0; box-shadow: none; }
+}
