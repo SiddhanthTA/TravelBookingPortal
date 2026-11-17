@@ -17,6 +17,10 @@ import EditHotelPage from './components/EditHotelPage';
 import ManageBookingsPage from './components/ManageBookingsPage';
 import UsersPage from './components/UsersPage';
 import ProfilePage from './components/ProfilePage';
+import FlightCheckoutPage from './components/FlightCheckoutPage';
+import HotelCheckoutPage from './components/HotelCheckoutPage';
+import PaymentPage from './components/PaymentPage';
+import BookingConfirmationPage from './components/BookingConfirmationPage';
 
 // PrivateRoute to protect pages
 const PrivateRoute = ({ children }) => {
@@ -119,6 +123,10 @@ function AppRoutes() {
                      <Route path="/manage-bookings" element={<PrivateRoute><ManageBookingsPage/></PrivateRoute>} />
                      <Route path="/users" element={<PrivateRoute><UsersPage/></PrivateRoute>}/>
                      <Route path="/profile" element={<PrivateRoute><ProfilePage/></PrivateRoute>}/>
+                    <Route path="/flight-checkout/:id" element={<PrivateRoute><FlightCheckoutPage /></PrivateRoute>} />
+                    <Route path="/hotel-checkout/:id" element={<PrivateRoute><HotelCheckoutPage /></PrivateRoute>} />
+                    <Route path="/payment/:id" element={<PrivateRoute><PaymentPage /></PrivateRoute>} />
+                    <Route path="/booking-confirmation/:id" element={<PrivateRoute><BookingConfirmationPage /></PrivateRoute>} />
 
                     {/* Catch all */}
                     <Route path="*" element={<Navigate to="/login" replace />} />
