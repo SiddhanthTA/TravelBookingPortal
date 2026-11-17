@@ -132,8 +132,44 @@ public class DataInitializer implements CommandLineRunner {
                     hotelRepository.save(property);
                     hotelIndex++;
                 }
-                // Ensure the original starter properties also display meaningful amenity metadata.
+                // Replace the five original placeholder rows with real property names.
                 for (Hotel property : hotelRepository.findAll()) {
+                    switch (property.getName()) {
+                        case "The Grand" -> {
+                            property.setName("The St. Regis Mumbai"); property.setLocation("Mumbai");
+                            property.setAddress("Lower Parel, Mumbai"); property.setRating(5); property.setPricePerNight(18000);
+                        }
+                        case "Palm Resort" -> {
+                            property.setName("W Goa"); property.setLocation("Goa");
+                            property.setAddress("Vagator, Goa"); property.setRating(5); property.setPricePerNight(18000);
+                        }
+                        case "City Inn" -> {
+                            property.setName("The Claridges New Delhi"); property.setLocation("Delhi");
+                            property.setAddress("Aurangzeb Road, New Delhi"); property.setRating(5); property.setPricePerNight(9500);
+                        }
+                        case "Lakeview Hotel" -> {
+                            property.setName("Taj Lake Palace"); property.setLocation("Udaipur");
+                            property.setAddress("Lake Pichola, Udaipur"); property.setRating(5); property.setPricePerNight(25000);
+                        }
+                        case "Mountain Retreat" -> {
+                            property.setName("The Himalayan"); property.setLocation("Manali");
+                            property.setAddress("Hadimba Road, Manali"); property.setRating(4); property.setPricePerNight(12000);
+                        }
+                        default -> { }
+                    }
+                    if (property.getHotelType() == null) property.setHotelType(property.getRating() + " Star");
+                    if (property.getImageUrl() == null) property.setImageUrl(propertyPhotos[Math.floorMod(property.getName().hashCode(), propertyPhotos.length)]);
+                    if (property.getAddress() == null || property.getAddress().isBlank()) property.setAddress("Central area, " + property.getLocation());
+                    if (property.getHotelType() != null && property.getImageUrl() != null && property.getWifi() == false) {
+                        property.setWifi(true);
+                        property.setBreakfastIncluded(true);
+                        property.setSwimmingPool(property.getRating() >= 4);
+                        property.setGym(property.getRating() >= 4);
+                        property.setNearMainAreas(true);
+                    }
+                    hotelRepository.save(property);
+                }
+
                     if (property.getHotelType() == null) {
                         property.setHotelType(property.getRating() + " Star");
                         property.setWifi(true);
