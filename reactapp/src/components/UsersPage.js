@@ -1,50 +1,48 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { deleteUser, getAllUsers } from "../utils/ApiService";
 import "./UsersPage.css";
-
-const API_URL = "https://8080-cfeefabccfdbebfdbafbbdbaebaacbbb.premiumproject.examly.io"; // adjust if needed
 
 function UsersPage() {
     const [users, setUsers] = useState([]);
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     const fetchUsers = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/Auth/show`);
-            setUsers(response.data);
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        }
+        setLoading(true);
+        setError("");
+        try { setUsers(await getAllUsers()); }
+        catch (err) { setError("Unable to load users. Check the backend connection."); }
+        finally { setLoading(false); }
     };
 
+    useEffect(() => { fetchUsers(); }, []);
+
     const handleDelete = async (id) => {
+        if (!window.confirm("Delete this user account? This action cannot be undone.")) return;
         try {
-            await axios.delete(`${API_URL}/admin/users/${id}`);
-            setUsers(users.filter((u) => u.id !== id));
-        } catch (error) {
-            console.error("Error deleting user:", error);
+            await deleteUser(id);
+            setUsers((previous) => previous.filter((user) => user.id !== id));
+        } catch (err) {
+            setError(err.response?.data?.message || "Unable to delete this user.");
         }
     };
 
     return (
-        <div className="users-container">
-            <h2>Manage Users</h2>
-            <div className="users-grid">
-                {users.map((user) => (
-                    <div key={user.id} className="user-card">
-                        <h3>{user.username}</h3>
-                        <p>Email: {user.email}</p>
-                        <p>Role: {user.role}</p>
-                        <button className="delete-btn" onClick={() => handleDelete(user.id)}>
-                            Delete
-                        </button>
-                    </div>
-                ))}
-            </div>
-        </div>
+        <main className="users-container">
+            <div className="users-page-heading"><div><span className="travel-eyebrow">ADMINISTRATION</span><h1>Manage users</h1><p>{users.length} registered account(s)</p></div><button onClick={fetchUsers} disabled={loading}>Refresh</button></div>
+            {error && <p className="users-error">{error}</p>}
+            {loading ? <p>Loading users…</p> : users.length === 0 ? <p>No user accounts found.</p> : (
+                <div className="users-grid">
+                    {users.map((user) => (
+                        <article key={user.id} className="user-card">
+                            <div className="user-avatar">{(user.name || "U").trim().charAt(0).toUpperCase()}</div>
+                            <div><h3>{user.name || "Unnamed user"}</h3><p>{user.email}</p><p>{user.phoneNumber || "No phone number"}</p><span className="user-role">{user.role}</span></div>
+                            <button className="delete-btn" onClick={() => handleDelete(user.id)}>Delete account</button>
+                        </article>
+                    ))}
+                </div>
+            )}
+        </main>
     );
 }
 
