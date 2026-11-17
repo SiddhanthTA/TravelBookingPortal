@@ -51,6 +51,39 @@ public class DataInitializer implements CommandLineRunner {
                                                         LocalDateTime.now().plusDays(1).plusHours(1), 2500, 70)));
                 }
 
+
+                // Expand the demo domestic network without duplicating flights on later restarts.
+                String[][] routes = {
+                    {"Delhi","Mumbai","Pune","Jaipur","Lucknow","Bengaluru"},
+                    {"Mumbai","Delhi","Goa","Ahmedabad","Hyderabad","Chennai"},
+                    {"Bengaluru","Delhi","Mumbai","Chennai","Hyderabad","Kochi"},
+                    {"Chennai","Delhi","Mumbai","Bengaluru","Kolkata","Coimbatore"},
+                    {"Kolkata","Delhi","Mumbai","Bengaluru","Guwahati","Bhubaneswar"},
+                    {"Hyderabad","Delhi","Mumbai","Bengaluru","Chennai","Pune"}
+                };
+                String[] airlines = {"IndiGo","Air India","Akasa Air","SpiceJet","Air India Express"};
+                String[] prefixes = {"6E","AI","QP","SG","IX"};
+                int routeIndex = 0;
+                for (String[] cityRoutes : routes) {
+                    for (int destinationIndex = 1; destinationIndex < cityRoutes.length; destinationIndex++) {
+                        String origin = cityRoutes[0];
+                        String destination = cityRoutes[destinationIndex];
+                        String flightNumber = prefixes[routeIndex % prefixes.length] + (510 + routeIndex);
+                        if (!flightRepository.existsByFlightNumber(flightNumber)) {
+                            LocalDateTime departure = LocalDateTime.now().plusDays(2 + routeIndex % 20)
+                                    .withHour(6 + routeIndex % 13).withMinute((routeIndex % 2) * 30).withSecond(0).withNano(0);
+                            int durationHours = 1 + (routeIndex % 3);
+                            int durationMinutes = (routeIndex % 2) * 30;
+                            int seats = routeIndex % 9 == 0 ? 0 : routeIndex % 7 == 0 ? 7 : 35 + routeIndex % 80;
+                            double price = 2800 + (routeIndex % 8) * 425;
+                            flightRepository.save(new Flight(0, flightNumber, airlines[routeIndex % airlines.length],
+                                    origin, destination, departure,
+                                    departure.plusHours(durationHours).plusMinutes(durationMinutes), price, seats));
+                        }
+                        routeIndex++;
+                    }
+                }
+
                 if (hotelRepository.count() == 0) {
                         hotelRepository.saveAll(Arrays.asList(
                                         new Hotel(null, "The Grand", "Mumbai", "123 Marine Drive", 5, 8000, 50),
