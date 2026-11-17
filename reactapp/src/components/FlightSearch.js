@@ -1,65 +1,51 @@
 import React, { useState } from 'react';
 
+export const INDIAN_CITIES = [
+    "Agra","Ahmedabad","Amritsar","Aurangabad","Bengaluru","Bhopal","Bhubaneswar","Chandigarh","Chennai","Coimbatore","Dehradun","Delhi","Goa","Guwahati","Hyderabad","Indore","Jaipur","Jammu","Kochi","Kolkata","Lucknow","Madurai","Mangaluru","Mumbai","Mysuru","Nagpur","Patna","Port Blair","Pune","Raipur","Ranchi","Srinagar","Surat","Thiruvananthapuram","Tiruchirappalli","Udaipur","Varanasi","Visakhapatnam"
+];
+
 function FlightSearch({ onSearch, loading }) {
     const [origin, setOrigin] = useState('');
     const [destination, setDestination] = useState('');
     const [date, setDate] = useState('');
-    const [passengers, setPassengers] = useState(1);
     const [errors, setErrors] = useState({});
+    const [suggestionsOpen, setSuggestionsOpen] = useState({});
 
     const validate = () => {
-        const errs = {};
-        if (!origin.trim()) errs.origin = 'Select origin';
-        if (!destination.trim()) errs.destination = 'Select destination';
-        if (origin.trim() && destination.trim() && origin.trim().toLowerCase() === destination.trim().toLowerCase()) {
-            errs.same = 'Origin and destination must differ';
-        }
-        if (!date) errs.date = 'Choose a departure date';
-        else if (new Date(date + 'T00:00:00') < new Date(new Date().toDateString())) errs.past = 'Date must not be in past';
-        if (passengers < 1 || passengers > 9) errs.passengers = 'Choose between 1 and 9 passengers';
-        return errs;
+        const next = {};
+        if (!INDIAN_CITIES.includes(origin)) next.origin = 'Choose a departure city from the suggestions.';
+        if (destination && !INDIAN_CITIES.includes(destination)) next.destination = 'Choose a destination city from the suggestions.';
+        if (origin && destination && origin === destination) next.destination = 'Origin and destination must be different.';
+        if (date && date < new Date().toLocaleDateString('en-CA')) next.date = 'Departure date cannot be in the past.';
+        return next;
     };
-
-    const handleSubmit = (event) => {
+    const submit = (event) => {
         event.preventDefault();
-        const validationErrors = validate();
-        if (Object.keys(validationErrors).length) {
-            setErrors(validationErrors);
-            return;
-        }
-        setErrors({});
-        onSearch(origin.trim(), destination.trim(), date, Number(passengers));
+        const next = validate();
+        setErrors(next);
+        if (Object.keys(next).length) return;
+        onSearch(origin, destination, date);
     };
-
-    return (
-        <form className="flight-search-form" onSubmit={handleSubmit}>
-            <div className="field-group">
-                <label htmlFor="origin">Origin</label>
-                <input id="origin" data-testid="origin-input" value={origin} onChange={(e) => setOrigin(e.target.value)} placeholder="Departure city" />
-                {errors.origin && <p className="error-text">{errors.origin}</p>}
-            </div>
-            <div className="field-group">
-                <label htmlFor="destination">Destination</label>
-                <input id="destination" data-testid="destination-input" value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Destination city" />
-                {errors.destination && <p className="error-text">{errors.destination}</p>}
-                {errors.same && <p className="error-text">{errors.same}</p>}
-            </div>
-            <div className="field-group">
-                <label htmlFor="departureDate">Departure Date</label>
-                <input id="departureDate" data-testid="date-input" type="date" min={new Date().toISOString().slice(0, 10)} value={date} onChange={(e) => setDate(e.target.value)} />
-                {errors.date && <p className="error-text">{errors.date}</p>}
-                {errors.past && <p className="error-text">{errors.past}</p>}
-            </div>
-            <div className="field-group">
-                <label htmlFor="passengers">Travelers</label>
-                <select id="passengers" value={passengers} onChange={(e) => setPassengers(e.target.value)}>
-                    {Array.from({ length: 9 }, (_, index) => index + 1).map((count) => <option key={count} value={count}>{count} {count === 1 ? 'Passenger' : 'Passengers'}</option>)}
-                </select>
-                {errors.passengers && <p className="error-text">{errors.passengers}</p>}
-            </div>
-            <button className="search-btn" data-testid="search-button" type="submit" disabled={loading}>{loading ? 'Searching…' : 'Search flights'}</button>
-        </form>
-    );
+    const cityField = (key, label, value, setValue, placeholder) => {
+        const options = INDIAN_CITIES.filter(city => city.toLowerCase().includes(value.toLowerCase()));
+        return <div className="field-group flight-city-field">
+            <label htmlFor={key}>{label}</label>
+            <input id={key} role="combobox" aria-autocomplete="list" aria-expanded={!!suggestionsOpen[key]} autoComplete="off" value={value}
+                onFocus={() => setSuggestionsOpen(s => ({...s,[key]:true}))}
+                onBlur={() => setTimeout(() => setSuggestionsOpen(s => ({...s,[key]:false})), 120)}
+                onChange={e => { setValue(e.target.value); setErrors(s => ({...s,[key]:''})); }}
+                placeholder={placeholder} />
+            {suggestionsOpen[key] && value && <ul className="city-suggestions">{options.slice(0,8).map(city => <li key={city}><button type="button" onMouseDown={() => {setValue(city);setSuggestionsOpen(s=>({...s,[key]:false}));setErrors(s=>({...s,[key]:''}));}}>{city}</button></li>)}</ul>}
+            {errors[key] && <p className="error-text">{errors[key]}</p>}
+        </div>;
+    };
+    return <form className="flight-search-form" onSubmit={submit} noValidate>
+        {cityField('origin','From',origin,setOrigin,'Choose departure city')}
+        {cityField('destination','To (optional)',destination,setDestination,'Any destination')}
+        <div className="field-group"><label htmlFor="departureDate">Departure date (optional)</label>
+            <input id="departureDate" type="date" min={new Date().toLocaleDateString('en-CA')} value={date} onChange={e=>{setDate(e.target.value);setErrors(s=>({...s,date:''}));}} />
+            {errors.date && <p className="error-text">{errors.date}</p>}</div>
+        <button className="search-btn" type="submit" disabled={loading}>{loading?'Searching…':'Search flights'}</button>
+    </form>;
 }
-
 export default FlightSearch;
