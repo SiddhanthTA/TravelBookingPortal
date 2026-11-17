@@ -21,6 +21,7 @@ export default function PaymentPage() {
         setError('');
         try {
             const confirmed = await simulatePayment(id, method);
+            if (confirmed.bookingType === 'FLIGHT') sessionStorage.removeItem('flight-passengers-' + localStorage.getItem('userId') + '-' + confirmed.flightId);
             navigate(`/booking-confirmation/${confirmed.id}`, { state: { booking: confirmed } });
         } catch (err) {
             setError(err.response?.data?.message || 'The simulated payment could not be completed. Please try again.');
