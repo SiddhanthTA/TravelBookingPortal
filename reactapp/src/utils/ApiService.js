@@ -127,6 +127,15 @@ export const getAllBookings = async () => {
 };
 
 // Get user by ID
+export const uploadProfileImage = async (userId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(`/Auth/${userId}/profile-image`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data.profileImageUrl;
+};
+
 export const getUserById = async (userId) => {
     const res = await api.get(`/Auth/${userId}`);
     return res.data;
