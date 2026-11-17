@@ -1,23 +1,22 @@
 package com.examly.springapp.model;
 
-import jakarta.persistence.Entity;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "bookings")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Booking {
-    
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,19 +31,29 @@ public class Booking {
     private String status;
     private int nights;
 
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name="userId",insertable=false,updatable=false)
-    // @JsonInclude(JsonInclude.Include.NON_NULL)
-    // private User user;  
+    // Account holder and traveler/guest are deliberately separate.
+    private String bookingFor;
+    private String paymentStatus;
+    private LocalDate departureDate;
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
+    private int rooms;
+    private int passengerCount;
+    private int guestCount;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ManyToOne
-    @JoinColumn(name = "flightId",insertable = false, updatable=false)
+    @JoinColumn(name = "flightId", insertable = false, updatable = false)
     private Flight flight;
 
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ManyToOne
-    @JoinColumn(name="hotelId",insertable=false,updatable=false)
+    @JoinColumn(name = "hotelId", insertable = false, updatable = false)
     private Hotel hotel;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FlightPassenger> passengers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HotelGuest> guests = new ArrayList<>();
 }
