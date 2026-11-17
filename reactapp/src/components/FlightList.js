@@ -2,51 +2,28 @@ import React from 'react';
 import './FlightPage.css';
 
 const flightImages = [
-    "https://images.unsplash.com/photo-1569629743817-70d8db6c323b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGZsaWdodHxlbnwwfHwwfHx8MA%3D%3D",
-    "https://media.istockphoto.com/id/184347141/photo/white-mid-sized-passenger-jet-airplane.webp?a=1&b=1&s=612x612&w=0&k=20&c=lSuqpTBzdw7HL61wBbf4H1cKFVBRl741wntvEv4XzWc=",
-    "https://images.unsplash.com/photo-1583202075376-837d5ff1bf0f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fGZsaWdodHxlbnwwfHwwfHx8MA%3D%3D",
-    "https://images.unsplash.com/photo-1724811600537-1105b092e9be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTh8fGZsaWdodHxlbnwwfHwwfHx8MA%3D%3D",
-    "https://images.unsplash.com/photo-1610642372677-bcddb69f3531?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzB8fGZsaWdodHxlbnwwfHwwfHx8MA%3D%3D"
+    "https://images.unsplash.com/photo-1569629743817-70d8db6c323b?w=500&auto=format&fit=crop&q=60",
+    "https://images.unsplash.com/photo-1583202075376-837d5ff1bf0f?w=500&auto=format&fit=crop&q=60",
+    "https://images.unsplash.com/photo-1724811600537-1105b092e9be?w=500&auto=format&fit=crop&q=60"
 ];
 
-function FlightList({ flights, onBook, bookingId, error }) {
-    if (flights.length === 0) {
-        return <div className="no-results">No flights found</div>;
-    }
+function FlightList({ flights, onBook, passengerCount = 1, error }) {
+    if (!flights.length) return <div className="no-results">No flights found. Try another date or route.</div>;
 
     return (
         <div className="flight-list">
-            {error && <p data-testid="book-error" style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-            {flights.map((flight, index) => (
-                <div className="flight-card" key={flight.id}>
-                    <img
-                        src={flightImages[index % flightImages.length]}
-                        alt={`${flight.airline} airplane`}
-                        className="flight-card-image"
-                    />
+            {error && <p data-testid="book-error" className="flight-inline-error">{error}</p>}
+            {flights.filter((flight) => flight.availableSeats >= passengerCount).map((flight, index) => (
+                <article className="flight-card" key={flight.id}>
+                    <img src={flightImages[index % flightImages.length]} alt={`${flight.airline} aircraft`} className="flight-card-image" />
                     <div className="flight-card-details">
-                        <h3>{flight.airline}</h3>
-                        <p><strong>Flight:</strong> {flight.flightNumber}</p>
-                        <p>
-                            <strong>From:</strong> {flight.origin} → <strong>To:</strong> {flight.destination}
-                        </p>
+                        <div className="flight-airline-line"><h3>{flight.airline}</h3><span>{flight.flightNumber}</span></div>
+                        <div className="flight-route"><div><strong>{flight.origin}</strong><small>Departure</small></div><span className="flight-route-line">→</span><div><strong>{flight.destination}</strong><small>Arrival</small></div></div>
                         <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
-                        <p><strong>Price:</strong> ₹{flight.price}</p>
-                        <button
-                            type="button"
-                            data-testid={`book-flight-${flight.id}`}
-                            onClick={() => onBook(flight.id)}
-                            disabled={flight.availableSeats === 0 || bookingId === flight.id}
-                            className="btn-primary"
-                        >
-                            {flight.availableSeats === 0
-                                ? 'Sold Out'
-                                : bookingId === flight.id
-                                    ? 'Booked'
-                                    : 'Book Now'}
-                        </button>
+                        <p><strong>Seats available:</strong> {flight.availableSeats}</p>
+                        <div className="flight-book-line"><strong className="flight-price">₹{Number(flight.price).toLocaleString('en-IN')} <small>/ person</small></strong><button type="button" data-testid={`book-flight-${flight.id}`} onClick={() => onBook(flight.id)} className="btn-primary">Select flight</button></div>
                     </div>
-                </div>
+                </article>
             ))}
         </div>
     );
