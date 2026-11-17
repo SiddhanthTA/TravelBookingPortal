@@ -106,6 +106,12 @@ public class UserService {
         return repo.save(user);
     }
 
+    public User updateProfileImage(Long id, String imageUrl) {
+        User user = repo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setProfileImageUrl(imageUrl);
+        return repo.save(user);
+    }
+
     public void changePassword(Long id, String oldPassword, String newPassword) {
         User user = repo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         if (oldPassword == null || !encoder.matches(oldPassword, user.getPassword()))
