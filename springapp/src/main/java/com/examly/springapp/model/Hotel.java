@@ -15,6 +15,12 @@ import lombok.Getter;
 @Setter
 @NoArgsConstructor
 public class Hotel {
+
+    public Hotel(Long id, String name, String location, String address, int rating, double pricePerNight, int availableRooms) {
+        this.id = id; this.name = name; this.location = location; this.address = address;
+        this.rating = rating; this.pricePerNight = pricePerNight; this.availableRooms = availableRooms;
+    }
+
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
