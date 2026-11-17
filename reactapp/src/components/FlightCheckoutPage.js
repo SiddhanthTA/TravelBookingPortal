@@ -1,106 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { createFlightCheckout, getFlightById, getUserById } from '../utils/ApiService';
-import './CheckoutFlow.css';
-
-const blankPassenger = () => ({ fullName: '', dateOfBirth: '', gender: '', email: '', phoneNumber: '', address: '', passengerType: 'ADULT' });
-
-export default function FlightCheckoutPage() {
-    const { id } = useParams();
-    const location = useLocation();
-    const navigate = useNavigate();
-    const count = Math.max(1, Number(location.state?.passengerCount || 1));
-    const userId = localStorage.getItem('userId');
-    const [flight, setFlight] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [bookingFor, setBookingFor] = useState('ME');
-    const [passengers, setPassengers] = useState(Array.from({ length: count }, blankPassenger));
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState('');
-
-    useEffect(() => {
-        Promise.all([getFlightById(id), getUserById(userId)])
-            .then(([flightData, profileData]) => {
-                setFlight(flightData);
-                setProfile(profileData);
-                setPassengers((current) => current.map((p, index) => index === 0 ? {
-                    ...p, fullName: profileData.name || '', dateOfBirth: profileData.dateOfBirth || '',
-                    gender: profileData.gender || '', email: profileData.email || '', phoneNumber: profileData.phoneNumber || '', address: [profileData.addressLine1, profileData.addressLine2, profileData.city, profileData.state, profileData.postalCode, profileData.country].filter(Boolean).join(', ')
-                } : p));
-            })
-            .catch(() => setError('Unable to load the flight or your profile. Please return to search.'))
-            .finally(() => setLoading(false));
-    }, [id, userId]);
-
-    const chooseBookingFor = (value) => {
-        setBookingFor(value);
-        setPassengers((current) => current.map((p, index) => {
-            if (value === 'ME' && index === 0 && profile) {
-                return { ...blankPassenger(), fullName: profile.name || '', dateOfBirth: profile.dateOfBirth || '', gender: profile.gender || '', email: profile.email || '', phoneNumber: profile.phoneNumber || '', address: [profile.addressLine1, profile.addressLine2, profile.city, profile.state, profile.postalCode, profile.country].filter(Boolean).join(', ') };
-            }
-            return blankPassenger();
-        }));
-    };
-
-    const updatePassenger = (index, key, value) => setPassengers((current) => current.map((p, i) => i === index ? { ...p, [key]: value } : p));
-    const addPassenger = () => setPassengers((current) => current.length >= 9 ? current : [...current, blankPassenger()]);
-    const removePassenger = (index) => setPassengers((current) => current.length <= 1 ? current : current.filter((_, i) => i !== index));
-
-    const submit = async (event) => {
-        event.preventDefault();
-        setError('');
-        if (passengers.some((p) => !p.fullName.trim())) {
-            setError('Enter the full name for every passenger.');
-            return;
-        }
-        setSubmitting(true);
-        try {
-            const booking = await createFlightCheckout({
-                userId: Number(userId), flightId: Number(id), bookingFor,
-                contactEmail: profile?.email, contactPhone: profile?.phoneNumber, passengers
-            });
-            navigate(`/payment/${booking.id}`, { state: { booking } });
-        } catch (err) {
-            setError(err.response?.data?.message || 'Could not create this booking. Check seat availability and try again.');
-        } finally { setSubmitting(false); }
-    };
-
-    if (loading) return <main className="checkout-page"><p>Loading flight details…</p></main>;
-    if (!flight) return <main className="checkout-page"><p className="checkout-error">{error || 'Flight not found.'}</p></main>;
-
-    return (
-        <main className="checkout-page">
-            <div className="checkout-heading"><span>FLIGHT BOOKING</span><h1>Passenger details</h1><p>Review your flight and tell us who is traveling.</p></div>
-            <section className="checkout-summary"><div><strong>{flight.origin} → {flight.destination}</strong><span>{flight.airline} · {flight.flightNumber}</span><span>{new Date(flight.departureTime).toLocaleString()}</span></div><strong>₹{Number(flight.price).toLocaleString('en-IN')} / passenger</strong></section>
-            <form onSubmit={submit}>
-                <section className="checkout-panel">
-                    <h2>Who are you booking for?</h2>
-                    <div className="booking-for-options">
-                        <label className={bookingFor === 'ME' ? 'booking-for-option selected' : 'booking-for-option'}><input type="radio" name="bookingFor" checked={bookingFor === 'ME'} onChange={() => chooseBookingFor('ME')} /><span><strong>Booking for me</strong><small>Prefill the first passenger from your profile.</small></span></label>
-                        <label className={bookingFor === 'OTHERS' ? 'booking-for-option selected' : 'booking-for-option'}><input type="radio" name="bookingFor" checked={bookingFor === 'OTHERS'} onChange={() => chooseBookingFor('OTHERS')} /><span><strong>Booking for others</strong><small>Start with empty passenger details.</small></span></label>
-                    </div>
-                </section>
-                {passengers.map((passenger, index) => (
-                    <section className="checkout-panel" key={index}>
-                        <div className="checkout-panel-title"><h2>Passenger {index + 1}</h2>{passengers.length > 1 && <button type="button" className="checkout-text-button" onClick={() => removePassenger(index)}>Remove</button>}</div>
-                        {index === 0 && bookingFor === 'ME' && <p className="prefill-note">Details were filled from your profile. You can edit them for this booking.</p>}
-                        <div className="checkout-grid">
-                            <label>Full name<input required value={passenger.fullName} onChange={(e) => updatePassenger(index, 'fullName', e.target.value)} /></label>
-                            <label>Date of birth<input type="date" value={passenger.dateOfBirth} onChange={(e) => updatePassenger(index, 'dateOfBirth', e.target.value)} /></label>
-                            <label>Gender<select value={passenger.gender} onChange={(e) => updatePassenger(index, 'gender', e.target.value)}><option value="">Select</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></label>
-                            <label>Passenger type<select value={passenger.passengerType} onChange={(e) => updatePassenger(index, 'passengerType', e.target.value)}><option value="ADULT">Adult</option><option value="CHILD">Child</option><option value="INFANT">Infant</option></select></label>
-                            <label>Email<input type="email" value={passenger.email} onChange={(e) => updatePassenger(index, 'email', e.target.value)} /></label>
-                            <label>Phone number<input type="tel" value={passenger.phoneNumber} onChange={(e) => updatePassenger(index, 'phoneNumber', e.target.value)} /></label>
-                            <label className="checkout-wide">Address<textarea rows="2" value={passenger.address} onChange={(e) => updatePassenger(index, 'address', e.target.value)} /></label>
-                        </div>
-                    </section>
-                ))}
-                <button type="button" className="checkout-add-button" onClick={addPassenger} disabled={passengers.length >= 9}>+ Add another passenger</button>
-                <div className="checkout-total"><span>{passengers.length} passenger(s)</span><strong>₹{(Number(flight.price) * passengers.length).toLocaleString('en-IN')}</strong></div>
-                {error && <p className="checkout-error">{error}</p>}
-                <div className="checkout-actions"><button type="button" className="checkout-secondary" onClick={() => navigate('/flights')}>Back to flights</button><button type="submit" className="checkout-primary" disabled={submitting}>{submitting ? 'Preparing checkout…' : 'Continue to payment'}</button></div>
-            </form>
-        </main>
-    );
-}
+import React,{useEffect,useMemo,useState}from'react';import{useLocation,useNavigate,useParams}from'react-router-dom';import{createFlightCheckout,getFlightById,getUserById}from'../utils/ApiService';import'./CheckoutFlow.css';
+const blank=()=>({fullName:'',dateOfBirth:'',gender:'',email:'',phoneNumber:'',address:'',passengerType:'ADULT'});
+const ageAt=(dob)=>{if(!dob)return null;const birth=new Date(dob+'T00:00:00'),now=new Date();let age=now.getFullYear()-birth.getFullYear();if(now.getMonth()<birth.getMonth()||(now.getMonth()===birth.getMonth()&&now.getDate()<birth.getDate()))age--;return age;};
+const typeFor=dob=>{const age=ageAt(dob);if(age===null||age<0)return'';if(age<2)return'INFANT';if(age<18)return'CHILD';if(age<55)return'ADULT';return'SENIOR';};
+const validate=p=>{const e={};if(!/^[\p{L}][\p{L} .'-]{1,79}$/u.test(p.fullName.trim()))e.fullName='Enter a valid full name (2–80 characters).';const age=ageAt(p.dateOfBirth);if(age===null||age<0||age>100)e.dateOfBirth='Enter a valid date of birth (not in the future or over 100 years ago).';if(!['Female','Male','Non-binary','Prefer not to say'].includes(p.gender))e.gender='Choose a gender option.';if(!/^[A-Z0-9._%+-]+@(gmail|yahoo)\.com$/i.test(p.email.trim()))e.email='Enter a valid Gmail or Yahoo email address.';if(!/^[6-9]\d{9}$/.test(p.phoneNumber))e.phoneNumber='Enter a valid 10-digit Indian mobile number.';if(p.address.length>255)e.address='Address must be 255 characters or fewer.';return e;};
+export default function FlightCheckoutPage(){const{id}=useParams(),location=useLocation(),navigate=useNavigate(),userId=localStorage.getItem('userId'),storageKey='flight-passengers-'+userId+'-'+id;const count=Math.max(1,Number(location.state?.passengerCount||1));const saved=()=>{try{const v=JSON.parse(sessionStorage.getItem(storageKey));return v&&Array.isArray(v.passengers)?v:null;}catch(e){return null;}};const initial=saved();const[flight,setFlight]=useState(null),[profile,setProfile]=useState(null),[bookingFor,setBookingFor]=useState(initial?.bookingFor||'ME'),[passengers,setPassengers]=useState(initial?.passengers||Array.from({length:count},blank)),[loading,setLoading]=useState(true),[submitting,setSubmitting]=useState(false),[error,setError]=useState(''),[fieldErrors,setFieldErrors]=useState({});
+useEffect(()=>{sessionStorage.setItem(storageKey,JSON.stringify({bookingFor,passengers}));},[storageKey,bookingFor,passengers]);
+useEffect(()=>{Promise.all([getFlightById(id),getUserById(userId)]).then(([f,p])=>{setFlight(f);setProfile(p);if(!saved()&&bookingFor==='ME')setPassengers(cur=>cur.map((x,i)=>i===0?{...x,fullName:p.name||'',dateOfBirth:p.dateOfBirth||'',gender:p.gender||'',email:p.email||'',phoneNumber:p.phoneNumber||'',address:[p.addressLine1,p.addressLine2,p.city,p.state,p.postalCode].filter(Boolean).join(', ')}:x));}).catch(()=>setError('Unable to load flight or profile details.')).finally(()=>setLoading(false));},[id,userId]);
+const update=(i,key,value)=>setPassengers(old=>old.map((p,index)=>index===i?{...p,[key]:value,...(key==='dateOfBirth'?{passengerType:typeFor(value)}:{})}:p));
+const choose=value=>{setBookingFor(value);if(value==='OTHERS')setPassengers(old=>old.map(()=>blank()));else if(profile)setPassengers(old=>old.map((p,i)=>i===0?{...blank(),fullName:profile.name||'',dateOfBirth:profile.dateOfBirth||'',gender:profile.gender||'',email:profile.email||'',phoneNumber:profile.phoneNumber||'',address:[profile.addressLine1,profile.addressLine2,profile.city,profile.state,profile.postalCode].filter(Boolean).join(', ')}:p));};
+const add=()=>setPassengers(old=>old.length<9?[...old,blank()]:old),remove=i=>setPassengers(old=>old.length>1?old.filter((_,n)=>n!==i):old);
+const submit=async e=>{e.preventDefault();setError('');const errs=passengers.map(validate);setFieldErrors(errs);if(errs.some(x=>Object.keys(x).length))return;setSubmitting(true);try{const payload={userId:Number(userId),flightId:Number(id),bookingFor,contactEmail:profile?.email,contactPhone:profile?.phoneNumber,passengers:passengers.map(p=>({...p,passengerType:typeFor(p.dateOfBirth)}))};const booking=await createFlightCheckout(payload);sessionStorage.removeItem(storageKey);navigate('/payment/'+booking.id,{state:{booking}});}catch(err){setError(err.response?.data?.message||'Could not create this booking. Check seat availability and try again.');}finally{setSubmitting(false);}};
+if(loading)return <main className="checkout-page"><p>Loading flight details…</p></main>;if(!flight)return <main className="checkout-page"><p className="checkout-error">{error||'Flight not found.'}</p></main>;
+return <main className="checkout-page"><div className="checkout-heading"><span>FLIGHT BOOKING</span><h1>Passenger details</h1><p>Your passenger information is saved in this browser while you complete checkout.</p></div><section className="checkout-summary"><div><strong>{flight.origin} → {flight.destination}</strong><span>{flight.airline} · {flight.flightNumber}</span><span>{new Date(flight.departureTime).toLocaleString()}</span></div><strong>₹{Number(flight.price).toLocaleString('en-IN')} / passenger</strong></section><form onSubmit={submit}><section className="checkout-panel"><h2>Who are you booking for?</h2><div className="booking-for-options"><label className={bookingFor==='ME'?'booking-for-option selected':'booking-for-option'}><input type="radio" checked={bookingFor==='ME'} onChange={()=>choose('ME')}/><span><strong>Booking for me</strong><small>Prefill first passenger from your profile.</small></span></label><label className={bookingFor==='OTHERS'?'booking-for-option selected':'booking-for-option'}><input type="radio" checked={bookingFor==='OTHERS'} onChange={()=>choose('OTHERS')}/><span><strong>Booking for others</strong><small>Enter all passenger details.</small></span></label></div></section>
+{passengers.map((p,i)=><section className="checkout-panel" key={i}><div className="checkout-panel-title"><h2>Passenger {i+1}</h2>{passengers.length>1&&<button type="button" className="checkout-text-button" onClick={()=>remove(i)}>Remove</button>}</div><div className="checkout-grid">
+<label>Full name<input required value={p.fullName} onChange={e=>update(i,'fullName',e.target.value)} className={fieldErrors[i]?.fullName?'invalid':''}/>{fieldErrors[i]?.fullName&&<small className="field-error">{fieldErrors[i].fullName}</small>}</label>
+<label>Date of birth<input type="date" required max={new Date().toLocaleDateString('en-CA')} min={new Date(new Date().setFullYear(new Date().getFullYear()-100)).toLocaleDateString('en-CA')} value={p.dateOfBirth} onChange={e=>update(i,'dateOfBirth',e.target.value)} className={fieldErrors[i]?.dateOfBirth?'invalid':''}/>{fieldErrors[i]?.dateOfBirth&&<small className="field-error">{fieldErrors[i].dateOfBirth}</small>}</label>
+<label>Gender<select required value={p.gender} onChange={e=>update(i,'gender',e.target.value)}><option value="">Choose gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select>{fieldErrors[i]?.gender&&<small className="field-error">{fieldErrors[i].gender}</small>}</label>
+<label>Passenger type<input readOnly value={p.dateOfBirth?(typeFor(p.dateOfBirth).replace('_',' ')):'Enter date of birth'} className="readonly-field"/></label>
+<label>Email<input type="email" required value={p.email} onChange={e=>update(i,'email',e.target.value)} className={fieldErrors[i]?.email?'invalid':''}/>{fieldErrors[i]?.email&&<small className="field-error">{fieldErrors[i].email}</small>}</label>
+<label>Indian mobile number<input type="tel" inputMode="numeric" maxLength="10" required value={p.phoneNumber} onChange={e=>update(i,'phoneNumber',e.target.value.replace(/\D/g,'').slice(0,10))} className={fieldErrors[i]?.phoneNumber?'invalid':''}/>{fieldErrors[i]?.phoneNumber&&<small className="field-error">{fieldErrors[i].phoneNumber}</small>}</label>
+<label className="checkout-wide">Address<textarea rows="2" maxLength="255" value={p.address} onChange={e=>update(i,'address',e.target.value)}/>{fieldErrors[i]?.address&&<small className="field-error">{fieldErrors[i].address}</small>}</label>
+</div></section>)}<button type="button" className="checkout-add-button" onClick={add} disabled={passengers.length>=9}>+ Add another passenger</button><div className="checkout-total"><span>{passengers.length} passenger(s)</span><strong>₹{(Number(flight.price)*passengers.length).toLocaleString('en-IN')}</strong></div>{error&&<p className="checkout-error">{error}</p>}<div className="checkout-actions"><button type="button" className="checkout-secondary" onClick={()=>navigate('/flights')}>Back to flights</button><button type="submit" className="checkout-primary" disabled={submitting}>{submitting?'Preparing checkout…':'Continue to payment'}</button></div></form></main>}
