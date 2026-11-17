@@ -21,6 +21,7 @@ const BookingList = ({ setError }) => {
     };
 
     const handleCancel = async (id) => {
+        if (!window.confirm('Cancel this reservation? The demo will mark the payment as refund pending; no real refund is issued.')) return;
         try {
             setError && setError(null);
             const updatedBooking = await ApiService.cancelBooking(id);
@@ -79,6 +80,7 @@ const BookingList = ({ setError }) => {
                             </>
                         )}
                         <p><strong>Payment status:</strong> {expandedBooking.paymentStatus || '—'}</p>
+                        <p className="booking-policy-note"><strong>Cancellation policy:</strong> Cancellation updates the reservation status. Successful demo payments are marked refund pending; this prototype does not process real refunds.</p>
                         <p><strong>Total:</strong> ₹{Number(expandedBooking.totalPrice).toLocaleString('en-IN')}</p>
                         <button className="close-modal-btn" onClick={() => setExpandedBooking(null)}>Close</button>
                     </div>
