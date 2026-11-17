@@ -32,11 +32,19 @@ export const getAllHotels = async () => {
 
 
 
-export const fetchHotels = async (location, minRating, maxPrice) => {
-    const res = await api.get('/hotels/search',
-        {
-            params: { location, rating: minRating, price: maxPrice }
-        });
+export const fetchHotels = async (location, minRating, maxPrice, amenities = {}) => {
+    const res = await api.get('/hotels/search', {
+        params: {
+            location: location || undefined,
+            rating: minRating || undefined,
+            price: maxPrice || undefined,
+            wifi: amenities.wifi || undefined,
+            breakfast: amenities.breakfast || undefined,
+            pool: amenities.pool || undefined,
+            gym: amenities.gym || undefined,
+            nearMainAreas: amenities.nearMainAreas || undefined
+        }
+    });
     return res.data;
 };
 
