@@ -100,8 +100,8 @@ const ProfilePage = () => {
     const initials = useMemo(() => (user?.name || "Traveler").trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase(), [user]);
     const handleChange = (event) => {
         const { name, value } = event.target;
-        const normalizedValue = name === "phoneNumber" ? value.replace(/\\D/g, "").slice(0, 10)
-            : name === "postalCode" ? value.replace(/\\D/g, "").slice(0, 6) : value;
+        const normalizedValue = name === "phoneNumber" ? value.replace(/\D/g, "").slice(0, 10)
+            : name === "postalCode" ? value.replace(/\D/g, "").slice(0, 6) : value;
         setFormData((previous) => ({ ...previous, [name]: normalizedValue, ...(name === "state" ? { city: "" } : {}) }));
         setFieldErrors((previous) => ({ ...previous, [name]: "", ...(name === "state" ? { city: "" } : {}) }));
     };
