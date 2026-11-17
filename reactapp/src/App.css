@@ -113,3 +113,34 @@ html {
 .btn-primary:hover {
     background-color: #0056b3;
 }
+
+/* Application-wide dark theme */
+body.dark-mode,body.dark-mode html{background:#0b1220!important;color:#e5edf6!important}
+body.dark-mode .main-content{background:#0b1220!important}
+body.dark-mode .dashboard-page,body.dark-mode .flight-page,body.dark-mode .hotel-page-container,body.dark-mode .booking-page,body.dark-mode .checkout-page,body.dark-mode .profile-page,body.dark-mode .manage-bookings-page,body.dark-mode .product-admin-page{background:#0b1220!important;color:#e5edf6!important}
+body.dark-mode :is(.dashboard-panel,.dashboard-stats>div,.dashboard-fact-card,.my-bookings,.my-booking-card,.my-booking-card-header,.my-booking-card-footer,.flight-search-section,.flight-card,.hotel-search-section,.hotel-card,.profile-hero,.profile-section,.checkout-panel,.confirmation-card,.flight-ticket,.admin-booking-row,.admin-metrics>div,.fact-modal,.booking-empty-state,.no-results,.hotel-no-results,.flight-loading,.hotel-loading){background:#141f30!important;border-color:#29384c!important;color:#e5edf6!important;box-shadow:0 7px 24px #0003}
+body.dark-mode :is(h1,h2,h3,h4,strong,b,.flight-page-title,.hotel-title,.booking-page-title,.dashboard-panel-heading h2,.dashboard-facts-heading h2,.profile-hero h1,.profile-section-heading h2,.checkout-heading h1,.checkout-panel h2,.ticket-screen-heading h1,.ticket-route strong,.ticket-meta strong,.ticket-payment strong,.hotel-card-heading h3,.flight-card-brand strong,.flight-time-block strong,.flight-time-block b,.hotel-card-footer strong,.booking-route strong,.booking-hotel-heading>div>strong,.booking-detail-grid strong,.booking-payment-info>strong,.dashboard-fact-card h3,.dashboard-stats strong,.admin-metrics strong){color:#e5edf6!important}
+body.dark-mode :is(p,small,span,label,caption,.flight-page-header p,.hotel-header p,.dashboard-welcome p,.dashboard-panel p,.dashboard-muted,.profile-hero p,.profile-field label,.profile-field p,.checkout-heading p,.booking-list-toolbar p,.booking-route small,.booking-detail-grid small,.booking-payment-info small,.hotel-location-line,.flight-card-brand span,.flight-date,.dashboard-fact-card>div>span){color:#a8b7c9}
+body.dark-mode :is(.flight-page,.hotel-page-container){background:linear-gradient(180deg,#0d1726,#0b1220)!important}
+body.dark-mode :is(input,select,textarea,.flight-search-form input,.hotel-search input,.hotel-search select,.profile-field input,.profile-field select,.checkout-grid input,.checkout-grid select,.checkout-grid textarea){background:#0d1726!important;border-color:#35465c!important;color:#e5edf6!important}
+body.dark-mode :is(.city-suggestions,.city-suggestions button,.hotel-reset-btn,.booking-refresh,.cancelled-toggle,.booking-outline-action,.booking-cancel-action){background:#1b293c!important;border-color:#35465c!important;color:#dbe6f2!important}
+body.dark-mode :is(.booking-type-switch,.booking-empty-icon,.booking-people,.booking-cost-breakdown,.dashboard-completion,.dashboard-progress,.hotel-amenity-chip,.payment-amount,.confirmation-reference,.confirmation-people,.confirmation-recommendations,.recommended-hotel,.hotel-invoice-preview,.hotel-invoice-facilities,.hotel-invoice-breakdown,.hotel-invoice-breakdown .hotel-invoice-total){background:#1b293c!important;border-color:#35465c!important;color:#c7d5e4!important}
+body.dark-mode :is(.booking-detail-grid,.ticket-meta,.ticket-passengers,.ticket-payment,.ticket-footer,.hotel-stay-details,.hotel-invoice-guest){border-color:#35465c!important}
+body.dark-mode :is(.booking-route-arrow i,.booking-route-arrow){color:#9bb0c7}
+body.dark-mode .dashboard-footer{background:#070d17!important}
+body.dark-mode .dashboard-completion>div:first-child strong,body.dark-mode .dashboard-completion button{color:#e5edf6}
+body.dark-mode .dashboard-fact-card button{color:#9cc8f2}
+body.dark-mode .flight-card-footer{border-color:#35465c!important}
+body.dark-mode .ticket-top,.dark-mode .checkout-summary{background:#102d4d!important}
+body.dark-mode .ticket-passengers th{background:#1b293c!important;color:#c7d5e4!important}
+body.dark-mode .ticket-passengers td{border-color:#35465c!important;color:#dbe6f2!important}
+body.dark-mode .profile-error-modal{background:#141f30!important;color:#e5edf6!important}
+body.dark-mode .profile-error-modal ul{color:#f1caca!important}
+body.dark-mode .booking-status-pill.confirmed{background:#153d2b!important;color:#8ee0ad!important}
+body.dark-mode .booking-status-pill.cancelled{background:#492525!important;color:#ffb0a9!important}
+body.dark-mode .status.confirmed{background:#17613b!important}
+body.dark-mode .header{background:#071d34!important}
+body.dark-mode .dashboard-welcome{background:linear-gradient(120deg,#102b49,#1b4267)!important}
+body.dark-mode .booking-page-error,body.dark-mode .flight-page-error,body.dark-mode .hotel-page-error{background:#421f25!important;color:#ffb5b0!important}
+body.dark-mode .checkout-secondary{background:#26364a!important;color:#dce7f3!important}
+body.dark-mode .fact-modal-backdrop{background:#020711df!important}
