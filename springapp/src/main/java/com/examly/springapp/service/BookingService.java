@@ -2,6 +2,7 @@ package com.examly.springapp.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -97,14 +98,64 @@ public class BookingService {
         if (request.getCheckInDate() == null || request.getCheckOutDate() == null
                 || !request.getCheckOutDate().isAfter(request.getCheckInDate())
                 || request.getCheckInDate().isBefore(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Check-out must be after check-in");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose valid check-in and check-out dates.");
         }
-        if (request.getRooms() < 1 || request.getGuests().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one room and one guest are required");
-        }
+        if (request.getRooms() < 1 || request.getRooms() > 10)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose between 1 and 10 rooms.");
+        if (request.getGuests() == null || request.getGuests().isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Primary guest details are required.");
         validateBookingFor(request.getBookingFor());
 
+        GuestRequest primaryGuest = request.getGuests().get(0);
+        if (primaryGuest.getFullName() == null
+                || !primaryGuest.getFullName().trim().matches("[\\p{L}][\\p{L} .'-]{1,79}"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid primary guest name.");
+        if (primaryGuest.getEmail() != null && !primaryGuest.getEmail().isBlank()
+                && !primaryGuest.getEmail().matches("(?i)^[A-Z0-9._%+-]+@(gmail|yahoo)\\.com$"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid Gmail or Yahoo email address.");
+        if (primaryGuest.getPhoneNumber() != null && !primaryGuest.getPhoneNumber().isBlank()
+                && !primaryGuest.getPhoneNumber().matches("^[6-9][0-9]{9}$"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid 10-digit Indian mobile number.");
+
+        LocalTime checkInTime = request.getCheckInTime() == null ? LocalTime.of(14, 0) : request.getCheckInTime();
+        LocalTime checkOutTime = request.getCheckOutTime() == null ? LocalTime.of(11, 0) : request.getCheckOutTime();
+        if (checkInTime.isBefore(LocalTime.of(12, 0)) || checkInTime.isAfter(LocalTime.of(23, 0)))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Check-in time must be between 12:00 PM and 11:00 PM.");
+        if (checkOutTime.isBefore(LocalTime.of(5, 0)) || checkOutTime.isAfter(LocalTime.of(12, 0)))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Check-out time must be between 5:00 AM and 12:00 PM.");
+
         int nights = (int) ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
+        double accommodationPrice = hotel.getPricePerNight() * nights * request.getRooms();
+        List<String> selected = request.getAdditionalFacilities() == null
+                ? List.of() : request.getAdditionalFacilities().stream().distinct().toList();
+        double facilityCharges = 0;
+        List<String> invoiceLines = new java.util.ArrayList<>();
+        for (String facility : selected) {
+            double charge;
+            String description;
+            switch (facility) {
+                case "GYM_ACCESS" -> {
+                    charge = 400.0 * nights * request.getRooms();
+                    description = "Gym access";
+                }
+                case "DINNER_PACKAGE" -> {
+                    charge = 850.0 * nights;
+                    description = "Dinner package";
+                }
+                case "SPA_SESSION" -> {
+                    charge = 1800.0;
+                    description = "Spa session";
+                }
+                case "AIRPORT_TRANSFER" -> {
+                    charge = 1200.0;
+                    description = "Airport transfer";
+                }
+                default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more selected facilities are invalid.");
+            }
+            facilityCharges += charge;
+            invoiceLines.add(description + ": ₹" + String.format(java.util.Locale.ROOT, "%.2f", charge));
+        }
+
         Booking booking = new Booking();
         booking.setBookingType("HOTEL");
         booking.setBookingReference("HT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -114,25 +165,29 @@ public class BookingService {
         booking.setBookingDate(LocalDateTime.now());
         booking.setCheckInDate(request.getCheckInDate());
         booking.setCheckOutDate(request.getCheckOutDate());
+        booking.setCheckInTime(checkInTime);
+        booking.setCheckOutTime(checkOutTime);
         booking.setNights(nights);
         booking.setRooms(request.getRooms());
-        booking.setGuestCount(request.getGuests().size());
-        booking.setTotalPrice(hotel.getPricePerNight() * nights * request.getRooms());
+        booking.setGuestCount(1);
+        booking.setPrimaryGuestName(primaryGuest.getFullName().trim());
+        booking.setAccommodationPrice(accommodationPrice);
+        booking.setFacilityCharges(facilityCharges);
+        booking.setFacilityDetails(invoiceLines.isEmpty() ? "No paid add-ons" : String.join("; ", invoiceLines));
+        booking.setTotalPrice(accommodationPrice + facilityCharges);
         booking.setStatus("PENDING_PAYMENT");
         booking.setPaymentStatus("PENDING");
         booking.setBookingFor(normalizeBookingFor(request.getBookingFor()));
 
-        for (GuestRequest guestRequest : request.getGuests()) {
-            HotelGuest guest = new HotelGuest();
-            guest.setBooking(booking);
-            guest.setFullName(guestRequest.getFullName().trim());
-            guest.setGender(guestRequest.getGender());
-            guest.setEmail(guestRequest.getEmail());
-            guest.setPhoneNumber(guestRequest.getPhoneNumber());
-            guest.setAddress(guestRequest.getAddress());
-            guest.setRoomNumber(guestRequest.getRoomNumber());
-            booking.getGuests().add(guest);
-        }
+        HotelGuest guest = new HotelGuest();
+        guest.setBooking(booking);
+        guest.setFullName(primaryGuest.getFullName().trim());
+        guest.setGender(primaryGuest.getGender());
+        guest.setEmail(primaryGuest.getEmail());
+        guest.setPhoneNumber(primaryGuest.getPhoneNumber());
+        guest.setAddress(primaryGuest.getAddress());
+        guest.setRoomNumber(1);
+        booking.getGuests().add(guest);
         return bookingRepository.save(booking);
     }
 
