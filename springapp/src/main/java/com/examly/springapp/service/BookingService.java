@@ -1,5 +1,6 @@
 package com.examly.springapp.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -45,6 +46,10 @@ public class BookingService {
         Flight flight = flightRepository.findById(request.getFlightId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flight not found"));
 
+        if (flight.getDepartureTime().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This flight has already departed");
+        }
+
         int passengerCount = request.getPassengers().size();
         if (passengerCount < 1 || flight.getAvailableSeats() < passengerCount) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Not enough seats are available for this passenger count");
@@ -88,7 +93,8 @@ public class BookingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Hotel not found"));
 
         if (request.getCheckInDate() == null || request.getCheckOutDate() == null
-                || !request.getCheckOutDate().isAfter(request.getCheckInDate())) {
+                || !request.getCheckOutDate().isAfter(request.getCheckInDate())
+                || request.getCheckInDate().isBefore(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Check-out must be after check-in");
         }
         if (request.getRooms() < 1 || request.getGuests().isEmpty()) {
