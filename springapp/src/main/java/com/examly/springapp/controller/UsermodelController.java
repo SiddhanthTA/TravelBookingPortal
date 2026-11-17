@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.examly.springapp.dto.ChangePasswordDTO;
+import com.examly.springapp.dto.LoginRequest;
+import jakarta.validation.Valid;
 import com.examly.springapp.dto.UpdateUserDTO;
 import com.examly.springapp.model.Booking;
 import com.examly.springapp.model.User;
@@ -31,6 +33,7 @@ public class UsermodelController {
 
     @PostMapping("/register")
     public String insertData(@RequestBody User data) {
+        data.setRole(User.Role.CUSTOMER);
         return ser.register(data);
     }
 
@@ -40,8 +43,8 @@ public class UsermodelController {
     }
 
     @PostMapping("/check")
-    public Map<String, Object> checkStatus(@RequestParam String email, @RequestParam String pass) {
-        return ser.checkDetails(email, pass);
+    public Map<String, Object> checkStatus(@Valid @RequestBody LoginRequest request) {
+        return ser.checkDetails(request.getEmail(), request.getPassword());
     }
 
     @PostMapping("/{userId}/bookings/flight")
