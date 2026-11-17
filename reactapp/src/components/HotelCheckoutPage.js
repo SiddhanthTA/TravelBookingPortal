@@ -1,112 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { createHotelCheckout, getHotelById, getUserById } from '../utils/ApiService';
-import './CheckoutFlow.css';
-
-const blankGuest = () => ({ fullName: '', gender: '', email: '', phoneNumber: '', address: '', roomNumber: 1 });
-
-export default function HotelCheckoutPage() {
-    const { id } = useParams();
-    const location = useLocation();
-    const navigate = useNavigate();
-    const criteria = location.state || {};
-    const userId = localStorage.getItem('userId');
-    const initialGuests = Math.max(1, Number(criteria.guests || 1));
-    const [hotel, setHotel] = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [bookingFor, setBookingFor] = useState('ME');
-    const [guests, setGuests] = useState(Array.from({ length: initialGuests }, blankGuest));
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState('');
-
-    useEffect(() => {
-        if (!criteria.checkInDate || !criteria.checkOutDate) {
-            setError('Please search for a hotel with check-in and check-out dates first.');
-            setLoading(false);
-            return;
-        }
-        Promise.all([getHotelById(id), getUserById(userId)])
-            .then(([hotelData, profileData]) => {
-                setHotel(hotelData);
-                setProfile(profileData);
-                setGuests((current) => current.map((g, index) => index === 0 ? {
-                    ...g, fullName: profileData.name || '', gender: profileData.gender || '',
-                    email: profileData.email || '', phoneNumber: profileData.phoneNumber || '',
-                    address: [profileData.addressLine1, profileData.addressLine2, profileData.city, profileData.state, profileData.postalCode, profileData.country].filter(Boolean).join(', ')
-                } : g));
-            })
-            .catch(() => setError('Unable to load the hotel or your profile.'))
-            .finally(() => setLoading(false));
-    }, [id, userId, criteria.checkInDate, criteria.checkOutDate]);
-
-    const chooseBookingFor = (value) => {
-        setBookingFor(value);
-        setGuests((current) => current.map((g, index) => {
-            if (value === 'ME' && index === 0 && profile) {
-                return { ...blankGuest(), fullName: profile.name || '', gender: profile.gender || '', email: profile.email || '', phoneNumber: profile.phoneNumber || '', address: [profile.addressLine1, profile.addressLine2, profile.city, profile.state, profile.postalCode, profile.country].filter(Boolean).join(', ') };
-            }
-            return blankGuest();
-        }));
-    };
-    const updateGuest = (index, key, value) => setGuests((current) => current.map((g, i) => i === index ? { ...g, [key]: value } : g));
-    const addGuest = () => setGuests((current) => current.length >= 20 ? current : [...current, blankGuest()]);
-    const removeGuest = (index) => setGuests((current) => current.length <= 1 ? current : current.filter((_, i) => i !== index));
-
-    const submit = async (event) => {
-        event.preventDefault();
-        setError('');
-        if (guests.some((g) => !g.fullName.trim())) { setError('Enter the full name for every guest.'); return; }
-        setSubmitting(true);
-        try {
-            const booking = await createHotelCheckout({
-                userId: Number(userId), hotelId: Number(id), bookingFor,
-                checkInDate: criteria.checkInDate, checkOutDate: criteria.checkOutDate,
-                rooms: Number(criteria.rooms || 1), guests
-            });
-            navigate(`/payment/${booking.id}`, { state: { booking } });
-        } catch (err) {
-            setError(err.response?.data?.message || 'Could not create this booking. Please review your details.');
-        } finally { setSubmitting(false); }
-    };
-
-    if (loading) return <main className="checkout-page"><p>Loading hotel details…</p></main>;
-    if (!hotel) return <main className="checkout-page"><p className="checkout-error">{error || 'Hotel not found.'}</p><button className="checkout-secondary" onClick={() => navigate('/hotels')}>Back to hotels</button></main>;
-
-    const nights = Math.max(1, Math.round((new Date(criteria.checkOutDate) - new Date(criteria.checkInDate)) / 86400000));
-    const total = Number(hotel.pricePerNight) * nights * Number(criteria.rooms || 1);
-
-    return (
-        <main className="checkout-page">
-            <div className="checkout-heading"><span>HOTEL BOOKING</span><h1>Guest details</h1><p>Confirm your stay and add everyone who will be checking in.</p></div>
-            <section className="checkout-summary"><div><strong>{hotel.name} · {hotel.location}</strong><span>{criteria.checkInDate} → {criteria.checkOutDate}</span><span>{nights} night(s) · {criteria.rooms || 1} room(s) · {guests.length} guest(s)</span></div><strong>₹{total.toLocaleString('en-IN')}</strong></section>
-            <form onSubmit={submit}>
-                <section className="checkout-panel">
-                    <h2>Who are you booking for?</h2>
-                    <div className="booking-for-options">
-                        <label className={bookingFor === 'ME' ? 'booking-for-option selected' : 'booking-for-option'}><input type="radio" name="bookingFor" checked={bookingFor === 'ME'} onChange={() => chooseBookingFor('ME')} /><span><strong>Booking for me</strong><small>Prefill the first guest from your profile.</small></span></label>
-                        <label className={bookingFor === 'OTHERS' ? 'booking-for-option selected' : 'booking-for-option'}><input type="radio" name="bookingFor" checked={bookingFor === 'OTHERS'} onChange={() => chooseBookingFor('OTHERS')} /><span><strong>Booking for others</strong><small>Start with empty guest details.</small></span></label>
-                    </div>
-                </section>
-                {guests.map((guest, index) => (
-                    <section className="checkout-panel" key={index}>
-                        <div className="checkout-panel-title"><h2>Guest {index + 1}</h2>{guests.length > 1 && <button type="button" className="checkout-text-button" onClick={() => removeGuest(index)}>Remove</button>}</div>
-                        {index === 0 && bookingFor === 'ME' && <p className="prefill-note">Details were filled from your profile. You can edit them for this stay.</p>}
-                        <div className="checkout-grid">
-                            <label>Full name<input required value={guest.fullName} onChange={(e) => updateGuest(index, 'fullName', e.target.value)} /></label>
-                            <label>Gender<select value={guest.gender} onChange={(e) => updateGuest(index, 'gender', e.target.value)}><option value="">Select</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></label>
-                            <label>Email<input type="email" value={guest.email} onChange={(e) => updateGuest(index, 'email', e.target.value)} /></label>
-                            <label>Phone number<input type="tel" value={guest.phoneNumber} onChange={(e) => updateGuest(index, 'phoneNumber', e.target.value)} /></label>
-                            <label className="checkout-wide">Present address<textarea rows="2" value={guest.address} onChange={(e) => updateGuest(index, 'address', e.target.value)} /></label>
-                            <label>Room number<select value={guest.roomNumber} onChange={(e) => updateGuest(index, 'roomNumber', Number(e.target.value))}>{Array.from({ length: Number(criteria.rooms || 1) }, (_, i) => i + 1).map((room) => <option key={room} value={room}>Room {room}</option>)}</select></label>
-                        </div>
-                    </section>
-                ))}
-                <button type="button" className="checkout-add-button" onClick={addGuest} disabled={guests.length >= 20}>+ Add another guest</button>
-                <div className="checkout-total"><span>{nights} night(s) · {criteria.rooms || 1} room(s)</span><strong>₹{total.toLocaleString('en-IN')}</strong></div>
-                {error && <p className="checkout-error">{error}</p>}
-                <div className="checkout-actions"><button type="button" className="checkout-secondary" onClick={() => navigate('/hotels')}>Back to hotels</button><button type="submit" className="checkout-primary" disabled={submitting}>{submitting ? 'Preparing checkout…' : 'Continue to payment'}</button></div>
-            </form>
-        </main>
-    );
-}
+import React,{useEffect,useMemo,useState}from'react';import{useLocation,useNavigate,useParams}from'react-router-dom';import{createHotelCheckout,getHotelById,getUserById}from'../utils/ApiService';import'./CheckoutFlow.css';
+const blank={fullName:'',email:'',phoneNumber:'',address:''};
+const facilityOptions=[{id:'GYM_ACCESS',name:'Gym access',description:'₹400 per room, per night',price:400,unit:'room-night'},{id:'DINNER_PACKAGE',name:'Dinner package',description:'₹850 per night',price:850,unit:'night'},{id:'SPA_SESSION',name:'Spa session',description:'₹1,800 one-time',price:1800,unit:'once'},{id:'AIRPORT_TRANSFER',name:'Airport transfer',description:'₹1,200 one-time',price:1200,unit:'once'}];
+const validName=v=>/^[\p{L}][\p{L} .'-]{1,79}$/u.test(v.trim());
+export default function HotelCheckoutPage(){const{id}=useParams(),location=useLocation(),navigate=useNavigate(),userId=localStorage.getItem('userId');const[hotel,setHotel]=useState(null),[profile,setProfile]=useState(null),[guest,setGuest]=useState(blank),[checkInDate,setCheckInDate]=useState(''),[checkOutDate,setCheckOutDate]=useState(''),[checkInTime,setCheckInTime]=useState('14:00'),[checkOutTime,setCheckOutTime]=useState('11:00'),[rooms,setRooms]=useState('1'),[facilities,setFacilities]=useState([]),[errors,setErrors]=useState({}),[loading,setLoading]=useState(true),[submitting,setSubmitting]=useState(false),[error,setError]=useState('');
+useEffect(()=>{Promise.all([getHotelById(id),getUserById(userId)]).then(([h,p])=>{setHotel(h);setProfile(p);setGuest({fullName:p.name||'',email:p.email||'',phoneNumber:p.phoneNumber||'',address:[p.addressLine1,p.addressLine2,p.city,p.state,p.postalCode,p.country].filter(Boolean).join(', ')});}).catch(()=>setError('Unable to load hotel or profile details.')).finally(()=>setLoading(false));},[id,userId]);
+const nights=checkInDate&&checkOutDate?Math.max(0,Math.round((new Date(checkOutDate+'T00:00:00')-new Date(checkInDate+'T00:00:00'))/86400000)):0;
+const accommodation=hotel&&nights>0?Number(hotel.pricePerNight)*nights*Number(rooms||0):0;
+const facilityLines=useMemo(()=>facilities.map(id=>{const f=facilityOptions.find(x=>x.id===id);if(!f)return null;const qty=id==='GYM_ACCESS'?nights*Number(rooms):id==='DINNER_PACKAGE'?nights:1;return {...f,quantity:qty,total:f.price*qty};}).filter(Boolean),[facilities,nights,rooms]);
+const facilityTotal=facilityLines.reduce((sum,x)=>sum+x.total,0),grandTotal=accommodation+facilityTotal;
+const toggleFacility=id=>setFacilities(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);
+const submit=async e=>{e.preventDefault();const next={};if(!validName(guest.fullName))next.fullName='Enter a valid full name (2–80 characters).';if(guest.email&&!/^[A-Z0-9._%+-]+@(gmail|yahoo)\.com$/i.test(guest.email.trim()))next.email='Enter a valid Gmail or Yahoo email address.';if(guest.phoneNumber&&!/^[6-9]\d{9}$/.test(guest.phoneNumber))next.phoneNumber='Enter a valid 10-digit Indian mobile number.';if(!checkInDate||checkInDate<new Date().toLocaleDateString('en-CA'))next.checkInDate='Choose today or a future check-in date.';if(!checkOutDate||checkOutDate<=checkInDate)next.checkOutDate='Check-out must be after check-in.';if(!rooms||Number(rooms)<1||Number(rooms)>10)next.rooms='Choose between 1 and 10 rooms.';if(checkInTime<'12:00'||checkInTime>'23:00')next.checkInTime='Check-in time must be between 12:00 PM and 11:00 PM.';if(checkOutTime<'05:00'||checkOutTime>'12:00')next.checkOutTime='Check-out time must be between 5:00 AM and 12:00 PM.';setErrors(next);setError('');if(Object.keys(next).length)return;setSubmitting(true);try{const booking=await createHotelCheckout({userId:Number(userId),hotelId:Number(id),bookingFor:'ME',checkInDate,checkOutDate,checkInTime,checkOutTime,rooms:Number(rooms),additionalFacilities:facilities,guests:[{fullName:guest.fullName.trim(),email:guest.email.trim(),phoneNumber:guest.phoneNumber,address:guest.address}]});navigate('/payment/'+booking.id,{state:{booking}});}catch(e){setError(e.response?.data?.message||'Could not prepare your hotel booking. Review your details and try again.');}finally{setSubmitting(false);}};
+if(loading)return <main className="checkout-page"><p>Loading hotel details…</p></main>;if(!hotel)return <main className="checkout-page"><p className="checkout-error">{error||'Hotel not found.'}</p><button className="checkout-secondary" onClick={()=>navigate('/hotels')}>Back to hotels</button></main>;
+return <main className="checkout-page hotel-checkout-page"><div className="checkout-heading"><span>HOTEL RESERVATION</span><h1>Plan your stay</h1><p>Choose your dates, room count and any additional facilities. Your total is itemized before payment.</p></div><section className="checkout-summary"><div><strong>{hotel.name} · {hotel.location}</strong><span>{hotel.hotelType||hotel.rating+' Star'} · ₹{Number(hotel.pricePerNight).toLocaleString('en-IN')} per room / night</span><span>{hotel.address}</span></div><strong>{hotel.rating} ★</strong></section>
+<form onSubmit={submit} noValidate><section className="checkout-panel"><h2>Stay details</h2><div className="checkout-grid">
+<label>Check-in date<input type="date" min={new Date().toLocaleDateString('en-CA')} value={checkInDate} onChange={e=>setCheckInDate(e.target.value)} className={errors.checkInDate?'invalid':''}/>{errors.checkInDate&&<small className="field-error">{errors.checkInDate}</small>}</label>
+<label>Check-in time<input type="time" min="12:00" max="23:00" value={checkInTime} onChange={e=>setCheckInTime(e.target.value)} className={errors.checkInTime?'invalid':''}/>{errors.checkInTime&&<small className="field-error">{errors.checkInTime}</small>}</label>
+<label>Check-out date<input type="date" min={checkInDate||new Date().toLocaleDateString('en-CA')} value={checkOutDate} onChange={e=>setCheckOutDate(e.target.value)} className={errors.checkOutDate?'invalid':''}/>{errors.checkOutDate&&<small className="field-error">{errors.checkOutDate}</small>}</label>
+<label>Check-out time<input type="time" min="05:00" max="12:00" value={checkOutTime} onChange={e=>setCheckOutTime(e.target.value)} className={errors.checkOutTime?'invalid':''}/>{errors.checkOutTime&&<small className="field-error">{errors.checkOutTime}</small>}</label>
+<label>Number of rooms<input type="number" min="1" max="10" value={rooms} onChange={e=>setRooms(e.target.value.replace(/\D/g,'').slice(0,2))} className={errors.rooms?'invalid':''}/>{errors.rooms&&<small className="field-error">{errors.rooms}</small>}</label>
+</div></section>
+<section className="checkout-panel"><h2>Primary guest</h2><p className="prefill-note">Your profile details are prefilled. Only the primary guest is required for this demo reservation.</p><div className="checkout-grid"><label className="checkout-wide">Full name<input required value={guest.fullName} onChange={e=>setGuest(g=>({...g,fullName:e.target.value}))} className={errors.fullName?'invalid':''}/>{errors.fullName&&<small className="field-error">{errors.fullName}</small>}</label><label>Email address<input type="email" value={guest.email} onChange={e=>setGuest(g=>({...g,email:e.target.value}))} className={errors.email?'invalid':''}/>{errors.email&&<small className="field-error">{errors.email}</small>}</label><label>Indian mobile number<input type="tel" inputMode="numeric" maxLength="10" value={guest.phoneNumber} onChange={e=>setGuest(g=>({...g,phoneNumber:e.target.value.replace(/\D/g,'').slice(0,10)}))} className={errors.phoneNumber?'invalid':''}/>{errors.phoneNumber&&<small className="field-error">{errors.phoneNumber}</small>}</label><label className="checkout-wide">Address<textarea rows="2" maxLength="255" value={guest.address} onChange={e=>setGuest(g=>({...g,address:e.target.value}))}/></label></div></section>
+<section className="checkout-panel"><h2>Additional facilities</h2><p className="prefill-note">Optional paid add-ons. Charges are calculated using the rates shown below.</p><div className="hotel-addon-list">{facilityOptions.map(f=><label className={facilities.includes(f.id)?'hotel-addon selected':'hotel-addon'} key={f.id}><input type="checkbox" checked={facilities.includes(f.id)} onChange={()=>toggleFacility(f.id)}/><span><strong>{f.name}</strong><small>{f.description}</small></span></label>)}</div></section>
+<section className="hotel-invoice-preview"><h2>Price breakdown</h2><div><span>Room stay ({nights} night(s) × {rooms||0} room(s))</span><strong>₹{accommodation.toLocaleString('en-IN')}</strong></div>{facilityLines.map(f=><div key={f.id}><span>{f.name} ({f.quantity} unit(s))</span><strong>₹{f.total.toLocaleString('en-IN')}</strong></div>)}<div className="hotel-invoice-total"><span>Total payable</span><strong>₹{grandTotal.toLocaleString('en-IN')}</strong></div></section>
+{error&&<p className="checkout-error">{error}</p>}<div className="checkout-actions"><button type="button" className="checkout-secondary" onClick={()=>navigate('/hotels')}>Back to hotels</button><button type="submit" className="checkout-primary" disabled={submitting}>{submitting?'Preparing payment…':'Continue to payment'}</button></div></form></main>}
