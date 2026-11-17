@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState}from'react';import{useLocation,useNavigate,useParams}from'react-router-dom';import{createFlightCheckout,getFlightById,getUserById}from'../utils/ApiService';import'./CheckoutFlow.css';
+import React,{useEffect,useState}from'react';import{useLocation,useNavigate,useParams}from'react-router-dom';import{createFlightCheckout,getFlightById,getUserById}from'../utils/ApiService';import'./CheckoutFlow.css';
 const blank=()=>({fullName:'',dateOfBirth:'',gender:'',email:'',phoneNumber:'',address:'',passengerType:'ADULT'});
 const ageAt=(dob)=>{if(!dob)return null;const birth=new Date(dob+'T00:00:00'),now=new Date();let age=now.getFullYear()-birth.getFullYear();if(now.getMonth()<birth.getMonth()||(now.getMonth()===birth.getMonth()&&now.getDate()<birth.getDate()))age--;return age;};
 const typeFor=dob=>{const age=ageAt(dob);if(age===null||age<0)return'';if(age<2)return'INFANT';if(age<18)return'CHILD';if(age<55)return'ADULT';return'SENIOR';};
