@@ -1,79 +1,44 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getUserBookings, getUserById } from '../utils/ApiService';
-import './DashboardPage.css';
-
-export default function DashboardPage() {
-    const navigate = useNavigate();
-    const userId = localStorage.getItem('userId');
-    const [profile, setProfile] = useState(null);
-    const [bookings, setBookings] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        Promise.all([
-            userId ? getUserById(userId) : Promise.resolve(null),
-            userId ? getUserBookings() : Promise.resolve([])
-        ]).then(([user, reservations]) => {
-            setProfile(user);
-            setBookings(reservations || []);
-        }).catch(() => {
-            setBookings([]);
-        }).finally(() => setLoading(false));
-    }, [userId]);
-
-    const upcoming = useMemo(() => bookings
-        .filter((booking) => booking.status === 'CONFIRMED')
-        .map((booking) => ({ ...booking, tripDate: booking.departureDate || booking.checkInDate || booking.flight?.departureTime }))
-        .filter((booking) => booking.tripDate && new Date(booking.tripDate) >= new Date(new Date().toDateString()))
-        .sort((a, b) => new Date(a.tripDate) - new Date(b.tripDate)), [bookings]);
-
-    const recent = useMemo(() => [...bookings].sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)).slice(0, 4), [bookings]);
-    const confirmedCount = bookings.filter((booking) => booking.status === 'CONFIRMED').length;
-    const completionFields = ['name', 'email', 'phoneNumber', 'dateOfBirth', 'gender', 'addressLine1', 'city', 'country'];
-    const completion = profile ? Math.round(completionFields.filter((field) => Boolean(profile[field])).length / completionFields.length * 100) : 0;
-
-    return (
-        <main className="dashboard-page">
-            <section className="dashboard-welcome">
-                <div><span className="travel-eyebrow">YOUR TRAVEL SPACE</span><h1>Welcome back{profile?.name ? `, ${profile.name.split(' ')[0]}` : ''}.</h1><p>Your next journey is just a few steps away.</p></div>
-                <div className="dashboard-quick-actions"><button onClick={() => navigate('/flights')}>Find flights</button><button onClick={() => navigate('/hotels')}>Find hotels</button></div>
-            </section>
-
-            <section className="dashboard-stats">
-                <div><span>Total reservations</span><strong>{bookings.length}</strong></div>
-                <div><span>Confirmed trips</span><strong>{confirmedCount}</strong></div>
-                <div><span>Upcoming journeys</span><strong>{upcoming.length}</strong></div>
-                <div><span>Profile completion</span><strong>{completion}%</strong></div>
-            </section>
-
-            <div className="dashboard-content-grid">
-                <section className="dashboard-panel dashboard-upcoming">
-                    <div className="dashboard-panel-heading"><div><span className="travel-eyebrow">WHAT'S NEXT</span><h2>Upcoming journeys</h2></div><button onClick={() => navigate('/bookings')}>All bookings</button></div>
-                    {loading ? <p className="dashboard-muted">Loading your journeys…</p> : upcoming.length ? upcoming.slice(0, 3).map((booking) => (
-                        <article className="dashboard-trip" key={booking.id}>
-                            <div className="dashboard-trip-icon">{booking.bookingType === 'FLIGHT' ? 'AIR' : 'STAY'}</div>
-                            <div><strong>{booking.bookingType === 'FLIGHT' ? `${booking.flight?.origin || 'Departure'} → ${booking.flight?.destination || 'Destination'}` : booking.hotel?.name || 'Hotel stay'}</strong><span>{booking.bookingType === 'FLIGHT' ? new Date(booking.tripDate).toLocaleString() : `${booking.checkInDate} → ${booking.checkOutDate}`}</span><small>{booking.bookingReference}</small></div>
-                            <span className="dashboard-status">{booking.status}</span>
-                        </article>
-                    )) : <div className="dashboard-empty"><strong>No upcoming journeys yet</strong><p>Once you confirm a flight or hotel, it will appear here.</p><button onClick={() => navigate('/flights')}>Explore flights</button></div>}
-                </section>
-
-                <section className="dashboard-panel dashboard-profile-panel">
-                    <span className="travel-eyebrow">YOUR PROFILE</span><h2>Make every booking easier</h2>
-                    <p>Keep your personal details and address up to date to prefill passenger and guest forms.</p>
-                    <div className="dashboard-progress"><span style={{ width: `${completion}%` }} /></div>
-                    <strong>{completion}% complete</strong>
-                    <button onClick={() => navigate('/profile')}>Update profile</button>
-                </section>
-            </div>
-
-            <section className="dashboard-panel dashboard-recent">
-                <div className="dashboard-panel-heading"><div><span className="travel-eyebrow">YOUR ACTIVITY</span><h2>Recent bookings</h2></div><button onClick={() => navigate('/bookings')}>View history</button></div>
-                {loading ? <p className="dashboard-muted">Loading bookings…</p> : recent.length ? (
-                    <div className="dashboard-recent-list">{recent.map((booking) => <div key={booking.id} className="dashboard-recent-row"><div><strong>{booking.bookingReference}</strong><span>{booking.bookingType} · {booking.bookingType === 'FLIGHT' ? booking.flight?.destination || 'Flight' : booking.hotel?.location || 'Hotel'}</span></div><span className={`dashboard-status ${(booking.status || '').toLowerCase()}`}>{booking.status}</span><strong>₹{Number(booking.totalPrice).toLocaleString('en-IN')}</strong></div>)}</div>
-                ) : <p className="dashboard-muted">Your confirmed and pending bookings will appear here.</p>}
-            </section>
-        </main>
-    );
+import React,{useEffect,useMemo,useState}from'react';import{useNavigate}from'react-router-dom';import{getUserBookings,getUserById}from'../utils/ApiService';import'./DashboardPage.css';
+const facts=[
+['Andhra Pradesh','The Lepakshi temple is famous for its विशाल hanging pillar, which barely touches the ground.','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1590050752117-23a9d7fc6c71?w=900&auto=format&fit=crop&q=80'],
+['Arunachal Pradesh','The first rays of sunlight in India reach the Dong village region in Arunachal Pradesh.','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&auto=format&fit=crop&q=80'],
+['Assam','Kaziranga National Park is home to the world’s largest population of one-horned rhinoceroses.','https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1549366021-9f761d450615?w=900&auto=format&fit=crop&q=80'],
+['Bihar','Nalanda was one of the world’s earliest residential universities, attracting students from across Asia.','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80'],
+['Chhattisgarh','Chitrakote Falls on the Indravati River is often called the Niagara Falls of India.','https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900&auto=format&fit=crop&q=80'],
+['Goa','Goa’s churches and convents preserve a remarkable legacy of Portuguese-era architecture.','https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=900&auto=format&fit=crop&q=80'],
+['Gujarat','The Rann of Kutch becomes a vast white salt desert, especially striking under the full moon.','https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1500534623283-312aade485b7?w=900&auto=format&fit=crop&q=80'],
+['Haryana','The ancient site of Rakhigarhi is among the largest known settlements of the Indus Valley Civilization.','https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80'],
+['Himachal Pradesh','The Great Himalayan National Park protects rare Himalayan wildlife and high-altitude ecosystems.','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900&auto=format&fit=crop&q=80'],
+['Jharkhand','Hundru Falls near Ranchi drops from a height of about 98 metres.','https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&auto=format&fit=crop&q=80'],
+['Karnataka','Hampi’s landscape is dotted with enormous boulders and the remains of the Vijayanagara Empire.','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1590050752117-23a9d7fc6c71?w=900&auto=format&fit=crop&q=80'],
+['Kerala','The Kerala backwaters form an interconnected network of lagoons, lakes, rivers and canals.','https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=900&auto=format&fit=crop&q=80'],
+['Madhya Pradesh','Khajuraho’s temples are celebrated for their intricate sculptures and medieval architecture.','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80'],
+['Maharashtra','The Ajanta Caves contain ancient Buddhist murals and sculptures carved into rock.','https://images.unsplash.com/photo-1590050752117-23a9d7fc6c71?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80'],
+['Manipur','Loktak Lake is famous for floating masses of vegetation called phumdis.','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&auto=format&fit=crop&q=80'],
+['Meghalaya','The living root bridges are grown by guiding the roots of rubber fig trees across streams.','https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&auto=format&fit=crop&q=80'],
+['Mizoram','Mizoram’s Chapchar Kut festival celebrates the completion of the traditional jhum-clearing season.','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900&auto=format&fit=crop&q=80'],
+['Nagaland','The Hornbill Festival brings together the cultures, crafts, food and performances of Naga tribes.','https://images.unsplash.com/photo-1500534623283-312aade485b7?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&auto=format&fit=crop&q=80'],
+['Odisha','The Konark Sun Temple is designed as a monumental stone chariot dedicated to the Sun God.','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80'],
+['Punjab','The Golden Temple’s community kitchen serves free meals to visitors every day.','https://images.unsplash.com/photo-1590050752117-23a9d7fc6c71?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80'],
+['Rajasthan','The Jantar Mantar in Jaipur houses monumental astronomical instruments built in the 18th century.','https://images.unsplash.com/photo-1477587458883-47145ed94245?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=900&auto=format&fit=crop&q=80'],
+['Sikkim','Khangchendzonga National Park is a UNESCO World Heritage Site with glaciers, mountains and rich biodiversity.','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900&auto=format&fit=crop&q=80'],
+['Tamil Nadu','The Brihadisvara Temple in Thanjavur was built by the Chola king Raja Raja I over a thousand years ago.','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1590050752117-23a9d7fc6c71?w=900&auto=format&fit=crop&q=80'],
+['Telangana','Hyderabad’s historic Charminar has four grand arches and is a landmark of the old city.','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80'],
+['Tripura','The Neermahal palace stands in the middle of Rudrasagar Lake.','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&auto=format&fit=crop&q=80'],
+['Uttar Pradesh','Varanasi is one of the world’s oldest continuously inhabited cities.','https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1606293926075-69a00db47a3a?w=900&auto=format&fit=crop&q=80'],
+['Uttarakhand','The Valley of Flowers bursts into bloom during the monsoon and is a UNESCO World Heritage Site.','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=900&auto=format&fit=crop&q=80'],
+['West Bengal','The Sundarbans is the world’s largest mangrove forest and an important habitat for Bengal tigers.','https://images.unsplash.com/photo-1549366021-9f761d450615?w=900&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=900&auto=format&fit=crop&q=80']
+];
+export default function DashboardPage(){
+ const navigate=useNavigate(),userId=localStorage.getItem('userId'),[profile,setProfile]=useState(null),[bookings,setBookings]=useState([]),[loading,setLoading]=useState(true),[selectedFact,setSelectedFact]=useState(null);
+ useEffect(()=>{Promise.all([userId?getUserById(userId):Promise.resolve(null),userId?getUserBookings():Promise.resolve([])]).then(([user,reservations])=>{setProfile(user);setBookings(reservations||[]);}).catch(()=>setBookings([])).finally(()=>setLoading(false));},[userId]);
+ const upcoming=useMemo(()=>bookings.filter(b=>b.status==='CONFIRMED').map(b=>({...b,tripDate:b.departureDate||b.checkInDate||b.flight?.departureTime})).filter(b=>b.tripDate&&new Date(b.tripDate)>=new Date(new Date().toDateString())).sort((a,b)=>new Date(a.tripDate)-new Date(b.tripDate)),[bookings]);
+ const completionFields=['name','email','phoneNumber','dateOfBirth','gender','addressLine1','city','state','postalCode'],completion=profile?Math.round(completionFields.filter(field=>Boolean(profile[field])).length/completionFields.length*100):0;
+ return <main className="dashboard-page"><section className="dashboard-welcome"><div><span className="travel-eyebrow">YOUR TRAVEL SPACE</span><h1>Welcome back{profile?.name?', '+profile.name.split(' ')[0]:''}.</h1><p>Your next journey is just a few steps away.</p></div><div className="dashboard-quick-actions"><button onClick={()=>navigate('/flights')}>Find flights</button><button onClick={()=>navigate('/hotels')}>Find hotels</button></div></section>
+ <section className="dashboard-stats"><div><span>Upcoming journeys</span><strong>{loading?'—':upcoming.length}</strong></div></section>
+ {completion<100&&<section className="dashboard-completion"><div><span>PROFILE COMPLETION</span><strong>{completion}%</strong></div><div className="dashboard-progress"><span style={{width:completion+'%'}}/></div><button onClick={()=>navigate('/profile')}>Complete your profile</button></section>}
+ <section className="dashboard-facts-section"><div className="dashboard-facts-heading"><div><span className="travel-eyebrow">A LITTLE INDIA INSPIRATION</span><h2>Did you know?</h2><p>Discover a fascinating fact from every Indian state.</p></div><span className="dashboard-facts-count">28 STATES · 28 STORIES</span></div><div className="dashboard-facts-grid">{facts.map(([state,fact,image],i)=><article className="dashboard-fact-card" key={state}><img src={image} alt={'Scenic view representing '+state} loading="lazy"/><div><span>INDIA · {String(i+1).padStart(2,'0')}</span><h3>{state}</h3><button onClick={()=>setSelectedFact(facts[i])}>Explore fact <span>→</span></button></div></article>)}</div></section>
+ <footer className="dashboard-footer"><div className="dashboard-footer-main"><section><h3>Travel Booking Portal</h3><p>Your companion for discovering India. Find flights, explore stays and keep every journey organized in one place.</p></section><section><h4>Explore</h4><button onClick={()=>navigate('/flights')}>Flights</button><button onClick={()=>navigate('/hotels')}>Hotels</button><button onClick={()=>navigate('/bookings')}>My bookings</button></section><section><h4>Your account</h4><button onClick={()=>navigate('/profile')}>Profile & preferences</button><button onClick={()=>navigate('/bookings')}>Manage reservations</button></section><section><h4>About this project</h4><p>A student-built travel booking application demonstrating search, reservation management and simulated checkout workflows.</p></section></div><div className="dashboard-footer-bottom"><span>© {new Date().getFullYear()} Travel Booking Portal</span><span>Built as an educational project · India</span></div></footer>
+ {selectedFact&&<div className="fact-modal-backdrop" role="presentation" onClick={()=>setSelectedFact(null)}><section className="fact-modal" role="dialog" aria-modal="true" aria-labelledby="fact-modal-title" onClick={e=>e.stopPropagation()}><button className="fact-modal-close" onClick={()=>setSelectedFact(null)} aria-label="Close">×</button><span className="travel-eyebrow">A FACT FROM {selectedFact[0].toUpperCase()}</span><h2 id="fact-modal-title">{selectedFact[0]}</h2><p>{selectedFact[1]}</p><div className="fact-modal-images"><img src={selectedFact[2]} alt={selectedFact[0]+' destination'}/><img src={selectedFact[3]} alt={selectedFact[0]+' landscape'}/></div><button className="fact-modal-done" onClick={()=>setSelectedFact(null)}>Back to all states</button></section></div>}
+ </main>;
 }
