@@ -16,4 +16,6 @@ public class PassengerRequest {
     private String phoneNumber;
     private String address;
     private String passengerType = "ADULT";
+    private String seatPreference;
+    private String dietaryPreference;
 }
