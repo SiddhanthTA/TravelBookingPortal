@@ -5,32 +5,33 @@ import FlightSearch from '../components/FlightSearch';
 describe('FlightSearch', () => {
   const defaultProps = { onSearch: jest.fn(), loading: false };
 
-  it('State_renders form', () => {
+  it('renders route, date and passenger fields', () => {
     render(<FlightSearch {...defaultProps} />);
     expect(screen.getByLabelText(/Origin/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Destination/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Departure Date/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Travelers/i)).toBeInTheDocument();
     expect(screen.getByTestId('search-button')).toBeInTheDocument();
   });
 
-  it('State_shows validation errors when submitting blank', () => {
+  it('shows validation errors when submitting blank', () => {
     render(<FlightSearch {...defaultProps} />);
     fireEvent.click(screen.getByTestId('search-button'));
     expect(screen.getByText(/Select origin/i)).toBeInTheDocument();
     expect(screen.getByText(/Select destination/i)).toBeInTheDocument();
-    expect(screen.getByText(/Pick a date/i)).toBeInTheDocument();
+    expect(screen.getByText(/Choose a departure date/i)).toBeInTheDocument();
   });
 
-  it('State_shows error for same city', () => {
+  it('shows error for same city', () => {
     render(<FlightSearch {...defaultProps} />);
     fireEvent.change(screen.getByTestId('origin-input'), { target: { value: 'Delhi' } });
     fireEvent.change(screen.getByTestId('destination-input'), { target: { value: 'Delhi' } });
-    fireEvent.change(screen.getByTestId('date-input'), { target: { value: '2025-01-24' } });
+    fireEvent.change(screen.getByTestId('date-input'), { target: { value: '2050-01-24' } });
     fireEvent.click(screen.getByTestId('search-button'));
     expect(screen.getByText(/must differ/i)).toBeInTheDocument();
   });
 
-  it('State_shows error for past date', () => {
+  it('shows error for past date', () => {
     render(<FlightSearch {...defaultProps} />);
     fireEvent.change(screen.getByTestId('origin-input'), { target: { value: 'Delhi' } });
     fireEvent.change(screen.getByTestId('destination-input'), { target: { value: 'Mumbai' } });
@@ -39,13 +40,14 @@ describe('FlightSearch', () => {
     expect(screen.getByText(/not be in past/i)).toBeInTheDocument();
   });
 
-  it('Axios_calls onSearch if validation passes', () => {
+  it('passes route, date and passenger count to search', () => {
     const onSearch = jest.fn();
     render(<FlightSearch onSearch={onSearch} loading={false} />);
     fireEvent.change(screen.getByTestId('origin-input'), { target: { value: 'Delhi' } });
     fireEvent.change(screen.getByTestId('destination-input'), { target: { value: 'Mumbai' } });
     fireEvent.change(screen.getByTestId('date-input'), { target: { value: '2050-01-26' } });
+    fireEvent.change(screen.getByLabelText(/Travelers/i), { target: { value: '2' } });
     fireEvent.click(screen.getByTestId('search-button'));
-    expect(onSearch).toHaveBeenCalledWith('Delhi', 'Mumbai', '2050-01-26');
+    expect(onSearch).toHaveBeenCalledWith('Delhi', 'Mumbai', '2050-01-26', 2);
   });
 });
