@@ -31,4 +31,6 @@ public class FlightPassenger {
     @Column(length = 500)
     private String address;
     private String passengerType;
+    private String seatPreference;
+    private String dietaryPreference;
 }
