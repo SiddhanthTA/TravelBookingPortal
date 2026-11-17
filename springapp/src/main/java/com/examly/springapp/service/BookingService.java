@@ -73,6 +73,7 @@ public class BookingService {
             passenger.setGender(passengerRequest.getGender());
             passenger.setEmail(passengerRequest.getEmail());
             passenger.setPhoneNumber(passengerRequest.getPhoneNumber());
+            passenger.setAddress(passengerRequest.getAddress());
             passenger.setPassengerType(passengerRequest.getPassengerType());
             booking.getPassengers().add(passenger);
         }
