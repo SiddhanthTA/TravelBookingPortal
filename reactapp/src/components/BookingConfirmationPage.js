@@ -1,55 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchHotels, getBookingById } from '../utils/ApiService';
-import './CheckoutFlow.css';
-
-export default function BookingConfirmationPage() {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [booking, setBooking] = useState(null);
-    const [error, setError] = useState('');
-    const [recommendedHotels, setRecommendedHotels] = useState([]);
-
-    useEffect(() => {
-        getBookingById(id).then(async (data) => {
-            setBooking(data);
-            if (data.bookingType === 'FLIGHT' && data.flight?.destination) {
-                try { setRecommendedHotels(await fetchHotels(data.flight.destination, null, null)); } catch (ignored) { setRecommendedHotels([]); }
-            }
-        }).catch(() => setError('Unable to load booking confirmation.'));
-    }, [id]);
-
-    if (!booking) return <main className="checkout-page"><p>{error || 'Loading confirmation…'}</p></main>;
-
-    return (
-        <main className="checkout-page confirmation-page">
-            <section className="confirmation-card">
-                <div className="confirmation-check">✓</div>
-                <span className="travel-eyebrow">BOOKING CONFIRMED</span>
-                <h1>Your trip is all set.</h1>
-                <p>Your simulated payment was successful and your reservation is confirmed.</p>
-                <div className="confirmation-reference"><span>BOOKING REFERENCE</span><strong>{booking.bookingReference}</strong></div>
-                <div className="confirmation-details">
-                    <div><span>Type</span><strong>{booking.bookingType}</strong></div>
-                    <div><span>Status</span><strong>{booking.status}</strong></div>
-                    <div><span>Payment</span><strong>{booking.paymentStatus}</strong></div>
-                    <div><span>Total paid</span><strong>₹{Number(booking.totalPrice).toLocaleString('en-IN')}</strong></div>
-                </div>
-                {booking.bookingType === 'FLIGHT' && <div className="confirmation-people"><h3>Passengers</h3>{(booking.passengers || []).map((p) => <p key={p.id}>{p.fullName} · {p.passengerType || 'Passenger'}</p>)}</div>}
-                {booking.bookingType === 'HOTEL' && <div className="confirmation-people"><h3>Guests</h3>{(booking.guests || []).map((g) => <p key={g.id}>{g.fullName} · Room {g.roomNumber || 1}</p>)}</div>}
-                {booking.bookingType === 'FLIGHT' && recommendedHotels.length > 0 && (
-                    <div className="confirmation-recommendations">
-                        <span className="travel-eyebrow">MAKE IT A COMPLETE TRIP</span>
-                        <h3>Stays in {booking.flight?.destination}</h3>
-                        <p>Since your flight is headed to {booking.flight?.destination}, here are some hotels you can explore.</p>
-                        <div className="recommended-hotel-list">
-                            {recommendedHotels.slice(0, 3).map((hotel) => <div className="recommended-hotel" key={hotel.id}><strong>{hotel.name}</strong><span>{hotel.rating} ★ · ₹{Number(hotel.pricePerNight).toLocaleString('en-IN')} / night</span></div>)}
-                        </div>
-                        <button className="checkout-secondary" onClick={() => navigate('/hotels')}>Explore hotels in {booking.flight?.destination}</button>
-                    </div>
-                )}
-                <div className="checkout-actions"><button className="checkout-secondary" onClick={() => window.print()}>Print / Save as PDF</button><button className="checkout-secondary" onClick={() => navigate('/')}>Go to dashboard</button><button className="checkout-primary" onClick={() => navigate('/bookings')}>View my bookings</button></div>
-            </section>
-        </main>
-    );
-}
+import React,{useEffect,useState}from'react';import{useNavigate,useParams}from'react-router-dom';import{fetchHotels,getBookingById}from'../utils/ApiService';import'./CheckoutFlow.css';
+const time=t=>t?new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false}):'—';
+const date=t=>t?new Date(t).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'long',year:'numeric'}):'—';
+const duration=(a,b)=>{if(!a||!b)return'—';const m=Math.max(0,Math.round((new Date(b)-new Date(a))/60000));return Math.floor(m/60)+'h '+m%60+'m';};
+export default function BookingConfirmationPage(){const{id}=useParams(),navigate=useNavigate(),[booking,setBooking]=useState(null),[error,setError]=useState(''),[hotels,setHotels]=useState([]);useEffect(()=>{getBookingById(id).then(async b=>{setBooking(b);if(b.bookingType==='FLIGHT'&&b.flight?.destination){try{setHotels(await fetchHotels(b.flight.destination,null,null));}catch(e){setHotels([]);}}}).catch(()=>setError('Unable to load your ticket.'));},[id]);if(!booking)return <main className="checkout-page"><p>{error||'Loading your ticket…'}</p></main>;
+const f=booking.flight,passengers=booking.passengers||[];
+return <main className="checkout-page ticket-page"><div className="ticket-screen-heading"><span className="travel-eyebrow">TRAVEL DOCUMENT</span><h1>{booking.bookingType==='FLIGHT'?'Your flight ticket':'Booking confirmation'}</h1><p>Your payment was successful. Keep this ticket handy for your journey.</p></div>
+{booking.bookingType==='FLIGHT'&&f?<article className="flight-ticket" id="printable-flight-ticket">
+<header className="ticket-top"><div className="ticket-brand"><span className="ticket-brand-mark">✈</span><div><strong>TRAVEL BOOKING PORTAL</strong><small>BOARDING DOCUMENT · DOMESTIC</small></div></div><div className="ticket-status">CONFIRMED</div></header>
+<section className="ticket-route"><div><span>FROM</span><strong>{f.origin}</strong><small>{time(f.departureTime)}</small><em>{date(f.departureTime)}</em></div><div className="ticket-route-middle"><span>{duration(f.departureTime,f.arrivalTime)}</span><div>✈ ───────── ✈</div><small>DIRECT FLIGHT</small></div><div><span>TO</span><strong>{f.destination}</strong><small>{time(f.arrivalTime)}</small><em>{date(f.arrivalTime)}</em></div></section>
+<div className="ticket-meta"><div><span>BOOKING REFERENCE</span><strong>{booking.bookingReference}</strong></div><div><span>AIRLINE</span><strong>{f.airline}</strong></div><div><span>FLIGHT NUMBER</span><strong>{f.flightNumber}</strong></div><div><span>TRAVEL DATE</span><strong>{date(f.departureTime)}</strong></div></div>
+<section className="ticket-passengers"><h2>PASSENGER DETAILS</h2><table><thead><tr><th>#</th><th>PASSENGER NAME</th><th>DATE OF BIRTH</th><th>TYPE</th></tr></thead><tbody>{passengers.map((p,i)=><tr key={p.id||i}><td>{i+1}</td><td>{p.fullName}</td><td>{p.dateOfBirth||'—'}</td><td>{(p.passengerType||'ADULT').replace('_',' ')}</td></tr>)}</tbody></table></section>
+<section className="ticket-payment"><div><span>PAYMENT STATUS</span><strong className="paid-label">PAID · SUCCESSFUL</strong></div><div><span>PASSENGERS</span><strong>{booking.passengerCount||passengers.length}</strong></div><div><span>FARE PER PERSON</span><strong>₹{Number(f.price).toLocaleString('en-IN')}</strong></div><div className="ticket-total"><span>TOTAL AMOUNT PAID</span><strong>₹{Number(booking.totalPrice).toLocaleString('en-IN')}</strong></div></section>
+<footer className="ticket-footer"><span>Booking ID: {booking.id} · Issued {date(booking.bookingDate)}</span><strong>Thank you for booking with us.</strong><small>This is a demo booking document, not an airline-issued boarding pass. Check in with the airline separately.</small></footer>
+</article>:<section className="confirmation-card"><div className="confirmation-reference"><span>BOOKING REFERENCE</span><strong>{booking.bookingReference}</strong></div><p>{booking.bookingType} · {booking.status} · {booking.paymentStatus}</p><strong>₹{Number(booking.totalPrice).toLocaleString('en-IN')} paid</strong></section>}
+<div className="checkout-actions ticket-actions"><button className="checkout-secondary" onClick={()=>window.print()}>Download ticket as PDF</button><button className="checkout-secondary" onClick={()=>navigate('/')}>Go to dashboard</button><button className="checkout-primary" onClick={()=>navigate('/bookings')}>View my bookings</button></div>
+{hotels.length>0&&<section className="confirmation-recommendations screen-only"><span className="travel-eyebrow">MAKE IT A COMPLETE TRIP</span><h3>Stays in {f?.destination}</h3><div className="recommended-hotel-list">{hotels.slice(0,3).map(h=><div className="recommended-hotel" key={h.id}><strong>{h.name}</strong><span>{h.rating} ★ · ₹{Number(h.pricePerNight).toLocaleString('en-IN')} / night</span></div>)}</div></section>}
+</main>}
