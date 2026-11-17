@@ -170,18 +170,6 @@ public class DataInitializer implements CommandLineRunner {
                     hotelRepository.save(property);
                 }
 
-                    if (property.getHotelType() == null) {
-                        property.setHotelType(property.getRating() + " Star");
-                        property.setWifi(true);
-                        property.setBreakfastIncluded(true);
-                        property.setSwimmingPool(property.getRating() >= 4);
-                        property.setGym(property.getRating() >= 4);
-                        property.setNearMainAreas(true);
-                    }
-                    if (property.getImageUrl() == null) property.setImageUrl(propertyPhotos[Math.floorMod(property.getName().hashCode(), propertyPhotos.length)]);
-                    if (property.getAddress() == null || property.getAddress().isBlank()) property.setAddress("Central area, " + property.getLocation());
-                    hotelRepository.save(property);
-                }
 
                 if (!userRepo.existsByEmail("admin1@gmail.com")) {
                         User admin1 = User.builder()
