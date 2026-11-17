@@ -56,7 +56,8 @@ public class FlightService {
         if(f.getOrigin()==null||f.getOrigin().trim().length()<2)throw bad("Enter a valid origin city.");
         if(f.getDestination()==null||f.getDestination().trim().length()<2||f.getOrigin().trim().equalsIgnoreCase(f.getDestination().trim()))throw bad("Enter a destination different from the origin.");
         if(f.getDepartureTime()==null||f.getArrivalTime()==null||!f.getArrivalTime().isAfter(f.getDepartureTime()))throw bad("Arrival time must be later than departure time.");
-        if(creating&& !f.getDepartureTime().isAfter(LocalDateTime.now()))throw bad("A new flight must depart in the future.");
+        if(!f.getDepartureTime().isAfter(LocalDateTime.now()))throw bad("Departure must be in the future.");
+        if(f.getArrivalTime().isAfter(f.getDepartureTime().plusHours(24)))throw bad("Domestic flight duration cannot exceed 24 hours.");
         if(!Double.isFinite(f.getPrice())||f.getPrice()<=0)throw bad("Flight fare must be greater than zero.");
         if(f.getAvailableSeats()<0||f.getAvailableSeats()>1000)throw bad("Available seats must be between 0 and 1,000.");
     }
