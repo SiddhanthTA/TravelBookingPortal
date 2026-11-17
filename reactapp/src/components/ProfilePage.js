@@ -6,7 +6,7 @@ import "./ProfilePage.css";
 const emptyProfile = {
     name: "", email: "", phoneNumber: "", dateOfBirth: "", gender: "",
     addressLine1: "", addressLine2: "", state: "", city: "", postalCode: "",
-    preferredTravelClass: "", preferredSeat: "", preferredHotelCategory: "", dietaryPreference: ""
+    preferredTravelClass: "", preferredSeat: "", dietaryPreference: ""
 };
 
 const stateCities = {
@@ -185,11 +185,10 @@ const ProfilePage = () => {
                     </div>
                 </section>
                 <section className="profile-section">
-                    <div className="profile-section-heading"><div><span className="profile-eyebrow">PREFERENCES</span><h2>Travel preferences</h2></div></div>
+                    <div className="profile-section-heading"><div><span className="profile-eyebrow">PREFERENCES</span><h2>Flight preferences</h2></div></div>
                     <div className="profile-fields">
                         {selectField("preferredTravelClass", "Preferred flight class", ["Economy", "Premium Economy", "Business", "First"])}
-                        {selectField("preferredSeat", "Seat preference", ["Window", "Aisle", "Middle", "No preference"])}
-                        {selectField("preferredHotelCategory", "Preferred hotel category", ["Budget", "3 Star", "4 Star", "5 Star", "No preference"])}
+                        {selectField("preferredSeat", "Preferred seat type", ["Window", "Aisle", "Middle", "No preference"])}
                         {selectField("dietaryPreference", "Dietary preference", ["No preference", "Vegetarian", "Non-vegetarian", "Vegan", "Jain"])}
                     </div>
                 </section>
