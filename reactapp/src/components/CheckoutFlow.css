@@ -105,3 +105,30 @@
     .checkout-page { max-width: 100%; margin: 0; padding: 0; }
     .confirmation-card { border: 0; box-shadow: none; }
 }
+
+/* Flight passenger form validation */
+.checkout-grid input.invalid,.checkout-grid select.invalid,.checkout-grid textarea.invalid{border:1.5px solid #d93025;background:#fff8f7}
+.field-error{display:block;color:#c62828;font-size:11px;font-weight:500;line-height:1.4}
+.checkout-grid .readonly-field{background:#f1f5f9;color:#536b86;font-weight:700;cursor:not-allowed}
+.ticket-page{max-width:1000px}
+.ticket-screen-heading{margin-bottom:20px}.ticket-screen-heading h1{margin:6px 0;color:#183451;font-size:30px}.ticket-screen-heading p{color:#718198;font-size:13px}
+.flight-ticket{overflow:hidden;border:1px solid #dbe3ec;border-radius:18px;background:#fff;box-shadow:0 12px 35px rgba(23,43,69,.08);color:#203750}
+.ticket-top{display:flex;justify-content:space-between;align-items:center;padding:20px 26px;background:#173b68;color:#fff}
+.ticket-brand{display:flex;align-items:center;gap:12px}.ticket-brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#ffffff20;font-size:22px}.ticket-brand div{display:grid;gap:3px}.ticket-brand strong{font-size:13px;letter-spacing:1px}.ticket-brand small{color:#c8d9eb;font-size:9px;letter-spacing:1.4px}.ticket-status{padding:7px 11px;border:1px solid #a7e4bd;border-radius:20px;color:#c6f4d4;font-size:10px;font-weight:800;letter-spacing:1px}
+.ticket-route{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:16px;padding:30px 28px;border-bottom:1px dashed #cbd5df}
+.ticket-route>div:not(.ticket-route-middle){display:grid;gap:5px}.ticket-route>div:last-child{text-align:right}.ticket-route span,.ticket-meta span,.ticket-payment span{color:#8291a4;font-size:9px;font-weight:800;letter-spacing:1.2px}.ticket-route strong{color:#173b68;font-size:28px}.ticket-route small{color:#425d79;font-size:18px;font-weight:700}.ticket-route em{color:#8794a4;font-size:11px;font-style:normal}.ticket-route-middle{text-align:center}.ticket-route-middle div{margin:8px 0;color:#7290ad;font-size:12px;white-space:nowrap}.ticket-route-middle small{font-size:9px}
+.ticket-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 26px;border-bottom:1px solid #e9edf2}.ticket-meta div,.ticket-payment div{display:grid;gap:6px}.ticket-meta strong,.ticket-payment strong{color:#263e58;font-size:12px}
+.ticket-passengers{padding:20px 26px;border-bottom:1px solid #e9edf2}.ticket-passengers h2{margin:0 0 13px;color:#526b85;font-size:10px;letter-spacing:1.3px}.ticket-passengers table{width:100%;border-collapse:collapse;text-align:left}.ticket-passengers th{padding:9px 7px;background:#f4f7fa;color:#8190a2;font-size:9px;letter-spacing:.7px}.ticket-passengers td{padding:11px 7px;border-bottom:1px solid #edf0f4;color:#314e6d;font-size:12px}
+.ticket-payment{display:grid;grid-template-columns:1fr 1fr 1fr 1.3fr;gap:12px;padding:20px 26px;background:#f8fafc}.ticket-payment .paid-label{color:#21834a}.ticket-payment .ticket-total{text-align:right}.ticket-payment .ticket-total strong{color:#173b68;font-size:20px}
+.ticket-footer{display:flex;flex-direction:column;gap:7px;padding:17px 26px;color:#8291a4;font-size:10px}.ticket-footer strong{color:#3a5674;font-size:12px}.ticket-footer small{color:#9aa5b2;font-size:9px}
+.ticket-actions{justify-content:flex-end}.screen-only{display:block}
+@media(max-width:650px){.ticket-top{padding:16px}.ticket-route{padding:22px 14px;gap:7px}.ticket-route strong{font-size:20px}.ticket-route small{font-size:15px}.ticket-route-middle div{font-size:9px}.ticket-meta{grid-template-columns:1fr 1fr;padding:17px}.ticket-passengers{padding:16px 12px;overflow-x:auto}.ticket-passengers table{min-width:480px}.ticket-payment{grid-template-columns:1fr 1fr;padding:17px}.ticket-payment .ticket-total{text-align:left}.ticket-footer{padding:15px}.ticket-screen-heading h1{font-size:24px}}
+@media print{
+ @page{size:A4;margin:12mm}
+ body *{visibility:hidden!important}
+ #printable-flight-ticket,#printable-flight-ticket *{visibility:visible!important}
+ #printable-flight-ticket{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important;border:1px solid #cbd5df!important;border-radius:0!important;box-shadow:none!important}
+ .ticket-page{max-width:none!important;margin:0!important;padding:0!important}
+ .ticket-screen-heading,.ticket-actions,.screen-only,.header{display:none!important}
+ .flight-ticket{break-inside:avoid}
+}
