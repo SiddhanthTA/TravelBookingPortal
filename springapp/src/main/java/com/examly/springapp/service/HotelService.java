@@ -18,6 +18,10 @@ public class HotelService {
         return hotelRepository.findAll();
     }
 
+    public List<Hotel> searchHotels(String location, Integer rating, Double price) {
+        return searchHotels(location, rating, price, null, null, null, null, null);
+    }
+
     public List<Hotel> searchHotels(String location, Integer rating, Double price,
             Boolean wifi, Boolean breakfast, Boolean pool, Boolean gym, Boolean nearMainAreas) {
         return hotelRepository.findAll().stream()
