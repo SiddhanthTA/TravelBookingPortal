@@ -118,6 +118,8 @@ public class BookingService {
         if (primaryGuest.getPhoneNumber() != null && !primaryGuest.getPhoneNumber().isBlank()
                 && !primaryGuest.getPhoneNumber().matches("^[6-9][0-9]{9}$"))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid 10-digit Indian mobile number.");
+        if (primaryGuest.getAddress() != null && primaryGuest.getAddress().length() > 255)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address must be 255 characters or fewer.");
 
         LocalTime checkInTime = request.getCheckInTime() == null ? LocalTime.of(14, 0) : request.getCheckInTime();
         LocalTime checkOutTime = request.getCheckOutTime() == null ? LocalTime.of(11, 0) : request.getCheckOutTime();
