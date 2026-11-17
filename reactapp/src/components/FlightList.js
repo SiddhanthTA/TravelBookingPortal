@@ -1,32 +1,3 @@
-import React from 'react';
-import './FlightPage.css';
-
-const flightImages = [
-    "https://images.unsplash.com/photo-1569629743817-70d8db6c323b?w=500&auto=format&fit=crop&q=60",
-    "https://images.unsplash.com/photo-1583202075376-837d5ff1bf0f?w=500&auto=format&fit=crop&q=60",
-    "https://images.unsplash.com/photo-1724811600537-1105b092e9be?w=500&auto=format&fit=crop&q=60"
-];
-
-function FlightList({ flights, onBook, passengerCount = 1, error }) {
-    if (!flights.length) return <div className="no-results">No flights found. Try another date or route.</div>;
-
-    return (
-        <div className="flight-list">
-            {error && <p data-testid="book-error" className="flight-inline-error">{error}</p>}
-            {flights.map((flight, index) => (
-                <article className="flight-card" key={flight.id}>
-                    <img src={flightImages[index % flightImages.length]} alt={`${flight.airline} aircraft`} className="flight-card-image" />
-                    <div className="flight-card-details">
-                        <div className="flight-airline-line"><h3>{flight.airline}</h3><span>{flight.flightNumber}</span></div>
-                        <div className="flight-route"><div><strong>{flight.origin}</strong><small>Departure</small></div><span className="flight-route-line">→</span><div><strong>{flight.destination}</strong><small>Arrival</small></div></div>
-                        <p><strong>Departure:</strong> {new Date(flight.departureTime).toLocaleString()}</p>
-                        <p><strong>Seats available:</strong> {flight.availableSeats}</p>
-                        <div className="flight-book-line"><strong className="flight-price">₹{Number(flight.price).toLocaleString('en-IN')} <small>/ person</small></strong><button type="button" data-testid={`book-flight-${flight.id}`} onClick={() => onBook(flight.id)} disabled={flight.availableSeats < passengerCount} className="btn-primary">{flight.availableSeats < passengerCount ? 'Not enough seats' : 'Select flight'}</button></div>
-                    </div>
-                </article>
-            ))}
-        </div>
-    );
-}
-
-export default FlightList;
+import React from'react';import'./FlightPage.css';
+const images=['https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1517479149777-5f3b1511d5ad?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1542296332-2e4473faf563?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1506947411487-a56738267384?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=640&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=640&auto=format&fit=crop&q=80'];const fmt=t=>new Date(t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});const dur=(a,b)=>{let n=Math.max(0,Math.round((new Date(b)-new Date(a))/60000));return Math.floor(n/60)+'h '+n%60+'m';};
+export default function FlightList({flights,onBook}){if(!flights?.length)return <div className="no-results"><strong>No flights found</strong><span>Try a different city or date.</span></div>;return <div className="flight-list">{flights.map((f,i)=>{const n=Number(f.availableSeats||0),tone=n<=0?'red':n<=10?'orange':'green',seat=n<=0?'Sold out':n<=10?'Only '+n+' seats left':n+' seats available';return <article className="flight-card" key={f.id}><div className="flight-card-brand"><img src={images[i%images.length]} alt={f.airline+' aircraft'} loading="lazy"/><div><strong>{f.airline}</strong><span>{f.flightNumber}</span></div></div><div className="flight-itinerary"><div className="flight-time-block"><strong>{fmt(f.departureTime)}</strong><b>{f.origin}</b><small>Departure</small></div><div className="flight-duration"><span>{dur(f.departureTime,f.arrivalTime)}</span><div className="flight-duration-line"><i/></div><small>Direct flight</small></div><div className="flight-time-block"><strong>{fmt(f.arrivalTime)}</strong><b>{f.destination}</b><small>Arrival</small></div></div><div className="flight-card-footer"><div><span className={'seat-indicator '+tone}><i/>{seat}</span><strong className="flight-price">₹{Number(f.price).toLocaleString('en-IN')} <small>/ person</small></strong><small className="flight-date">{new Date(f.departureTime).toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}</small></div><button type="button" onClick={()=>onBook(f.id)} disabled={n<=0} className="btn-primary">{n<=0?'Sold out':'Book Flight'}</button></div></article>;})}</div>}
