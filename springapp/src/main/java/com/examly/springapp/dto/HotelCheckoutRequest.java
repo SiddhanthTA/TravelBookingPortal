@@ -1,7 +1,9 @@
 package com.examly.springapp.dto;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.ArrayList;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,6 +25,9 @@ public class HotelCheckoutRequest {
     @Min(1)
     private int rooms = 1;
     private String bookingFor = "ME";
+    private LocalTime checkInTime;
+    private LocalTime checkOutTime;
+    private List<String> additionalFacilities = new ArrayList<>();
     @NotEmpty
     @Valid
     private List<GuestRequest> guests;
