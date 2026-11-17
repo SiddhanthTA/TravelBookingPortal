@@ -1,4 +1,4 @@
-import React,{useEffect,useState}from'react';import{useNavigate}from'react-router-dom';import{getUserById}from'../utils/ApiService';import'./DashboardPage.css';
+import React,{useEffect,useState}from'react';import{useNavigate}from'react-router-dom';import{getUserById}from'../utils/ApiService';import'./DashboardPage.css';import'./AdminConsole.css';
 const commonsImage=(file)=>'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(file)+'?width=1200';
 const facts=[
 ['Andhra Pradesh','Lepakshi’s Veerabhadra Temple is famous for a stone pillar that appears to hang just above the floor.','The hanging pillar at Lepakshi temple.JPG'],
