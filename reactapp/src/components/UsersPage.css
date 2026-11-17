@@ -92,3 +92,17 @@
     background: #c62828;
     transform: scale(1.05);
 }
+
+.users-page-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+.users-page-heading h1 { margin:5px 0; color:#1b3553; }
+.users-page-heading p { margin:0; color:#718198; font-size:13px; }
+.users-page-heading button { padding:9px 14px; border:1px solid #d4dfeb; border-radius:8px; background:white; color:#294662; font-weight:700; cursor:pointer; }
+.users-error { padding:10px; border-radius:8px; background:#fff0ef; color:#a3332a; }
+.user-card { display:flex; align-items:center; gap:14px; }
+.user-avatar { display:grid; place-items:center; width:42px; height:42px; flex:0 0 42px; border-radius:50%; background:#eaf1f9; color:#31577f; font-weight:800; }
+.user-card > div:nth-child(2) { flex:1; min-width:0; }
+.user-card h3 { margin:0 0 4px; }
+.user-card p { margin:3px 0; overflow-wrap:anywhere; }
+.user-role { display:inline-block; margin-top:5px; padding:3px 8px; border-radius:20px; background:#edf3f9; color:#31577f; font-size:10px; font-weight:800; }
+.delete-btn { padding:8px 12px; border:0; border-radius:8px; background:#a94442; color:white; font-weight:700; cursor:pointer; }
+@media(max-width:550px){.user-card{align-items:flex-start;flex-wrap:wrap}.delete-btn{margin-left:56px}}
