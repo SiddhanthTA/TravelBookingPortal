@@ -144,9 +144,6 @@ public class BookingService {
             Flight flight = flightRepository.findById(booking.getFlightId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flight not found"));
             if (flight.getAvailableSeats() < booking.getPassengerCount()) {
-                booking.setStatus("PAYMENT_FAILED");
-                booking.setPaymentStatus("FAILED");
-                bookingRepository.save(booking);
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Seats are no longer available. Please search again.");
             }
             flight.setAvailableSeats(flight.getAvailableSeats() - booking.getPassengerCount());
@@ -158,9 +155,6 @@ public class BookingService {
             long occupied = bookingRepository.countOverlappingHotelRooms(
                     hotel.getId(), booking.getCheckOutDate(), booking.getCheckInDate());
             if (hotel.getAvailableRooms() - occupied < booking.getRooms()) {
-                booking.setStatus("PAYMENT_FAILED");
-                booking.setPaymentStatus("FAILED");
-                bookingRepository.save(booking);
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Not enough rooms are available for those dates.");
             }
         }
