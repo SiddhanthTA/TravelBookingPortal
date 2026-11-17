@@ -111,6 +111,16 @@ export const deleteFlight = async (id) => {
     return res.data;
 };
 
+export const getAllUsers = async () => {
+    const res = await api.get('/Auth/show');
+    return res.data;
+};
+
+export const deleteUser = async (userId) => {
+    const res = await api.delete(`/Auth/delete/${userId}`);
+    return res.data;
+};
+
 export const getAllBookings = async () => {
     const res = await api.get('/api/bookings');
     return res.data;
@@ -173,6 +183,8 @@ export default {
     getUserById,
     updateUser,
     getAllBookings,
+    getAllUsers,
+    deleteUser,
     createHotel,
     updateHotel,
     deleteHotel,
