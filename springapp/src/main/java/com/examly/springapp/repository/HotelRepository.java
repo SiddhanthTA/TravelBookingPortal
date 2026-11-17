@@ -1,18 +1,26 @@
 package com.examly.springapp.repository;
 
 import java.util.List;
+import java.util.Optional;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.examly.springapp.model.Hotel;
 
-public interface HotelRepository extends JpaRepository<Hotel,Long>
-{
+public interface HotelRepository extends JpaRepository<Hotel, Long> {
     List<Hotel> findByLocation(String location);
     List<Hotel> findByRatingGreaterThanEqual(int rating);
     List<Hotel> findByPricePerNightLessThanEqual(double price);
-    List<Hotel> findByLocationAndRatingGreaterThanEqualAndPricePerNightLessThanEqual(String location,Integer rating, Double price);
-    List<Hotel> findByLocationAndRatingGreaterThanEqual(String location,Integer rating);
-    List<Hotel> findByLocationAndPricePerNightLessThanEqual(String location,Double price);
-    List<Hotel> findByRatingGreaterThanEqualAndPricePerNightLessThanEqual(Integer rating,Double price);
+    List<Hotel> findByLocationAndRatingGreaterThanEqualAndPricePerNightLessThanEqual(String location, Integer rating, Double price);
+    List<Hotel> findByLocationAndRatingGreaterThanEqual(String location, Integer rating);
+    List<Hotel> findByLocationAndPricePerNightLessThanEqual(String location, Double price);
+    List<Hotel> findByRatingGreaterThanEqualAndPricePerNightLessThanEqual(Integer rating, Double price);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select h from Hotel h where h.id = :id")
+    Optional<Hotel> findByIdForUpdate(@Param("id") Long id);
 }
