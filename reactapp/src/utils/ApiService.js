@@ -9,7 +9,7 @@ const api = axios.create({
 });
 
 export const fetchFlights = async (origin, destination, departureDate) => {
-    const res = await api.get(`${BASE_URL}/flights/search`, {
+    const res = await api.get('/flights/search', {
         params: { origin, destination, departureDate }
     });
     return res.data;
