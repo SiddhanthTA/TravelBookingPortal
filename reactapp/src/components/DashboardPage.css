@@ -46,3 +46,6 @@ body.dark-mode .dashboard-hero-card{border-color:#ffffff30!important;color:#fff!
 body.dark-mode .dashboard-fact-card.fact-image-unavailable:before{color:#c5d4e4;background:linear-gradient(135deg,#1b293c,#26384c)}
 body.dark-mode .fact-modal-images img{background:#1b293c}
 body.dark-mode .fact-image-credit{color:#9dc8f5}
+
+
+.fact-modal-images.fact-image-unavailable:before{content:"This destination photograph is temporarily unavailable";display:grid;place-items:center;min-height:180px;padding:20px;border-radius:12px;color:#52677d;background:linear-gradient(135deg,#e7eef5,#c7d7e6);font-size:13px;text-align:center}
