@@ -31,20 +31,21 @@ public class FlightService
         return flightrepository.findByPriceLessThanEqual(price);
     }
 
-    public List<Flight> searchFlightsByDate(String origin,String destination,String dateStr)
-    {
-        if(dateStr==null||dateStr.isEmpty())
-        {
-            return searchFlights(origin, destination);
+    public List<Flight> searchFlightsByDate(String origin, String destination, String dateStr) {
+        if (origin == null || origin.isBlank()) return Collections.emptyList();
+        LocalDate requestedDate = null;
+        if (dateStr != null && !dateStr.isBlank()) {
+            try { requestedDate = LocalDate.parse(dateStr); }
+            catch (Exception exception) { return Collections.emptyList(); }
         }
-        try{
-            LocalDate date=LocalDate.parse(dateStr);
-            LocalDateTime startOfDay=date.atStartOfDay();
-            LocalDateTime endOfDay=date.atTime(23,59,59,999999999);
-            return flightrepository.findByOriginAndDestinationAndDepartureTimeBetween(origin, destination, startOfDay, endOfDay);
-        }catch(Exception e){
-            return Collections.emptyList();
-        }
+        final LocalDate filterDate = requestedDate;
+        return flightrepository.findAll().stream()
+                .filter(f -> f.getOrigin() != null && f.getOrigin().equalsIgnoreCase(origin.trim()))
+                .filter(f -> destination == null || destination.isBlank()
+                        || (f.getDestination() != null && f.getDestination().equalsIgnoreCase(destination.trim())))
+                .filter(f -> filterDate == null || f.getDepartureTime().toLocalDate().equals(filterDate))
+                .sorted(Comparator.comparing(Flight::getDepartureTime))
+                .toList();
     }
 
     public List<Flight> getFlightsByOriginDestinationAndTimeRange(String origin,String destination,LocalDateTime start,LocalDateTime end)
