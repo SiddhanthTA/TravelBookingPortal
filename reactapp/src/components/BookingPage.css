@@ -226,3 +226,7 @@
         transform: scale(1);
     }
 }
+
+.booking-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.booking-card-actions button { margin: 0; }
+.booking-card-actions button:disabled { opacity: .5; cursor: not-allowed; }
