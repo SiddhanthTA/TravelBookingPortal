@@ -48,7 +48,7 @@ export default function BookingConfirmationPage() {
                         <button className="checkout-secondary" onClick={() => navigate('/hotels')}>Explore hotels in {booking.flight?.destination}</button>
                     </div>
                 )}
-                <div className="checkout-actions"><button className="checkout-secondary" onClick={() => navigate('/')}>Go to dashboard</button><button className="checkout-primary" onClick={() => navigate('/bookings')}>View my bookings</button></div>
+                <div className="checkout-actions"><button className="checkout-secondary" onClick={() => window.print()}>Print / Save as PDF</button><button className="checkout-secondary" onClick={() => navigate('/')}>Go to dashboard</button><button className="checkout-primary" onClick={() => navigate('/bookings')}>View my bookings</button></div>
             </section>
         </main>
     );
