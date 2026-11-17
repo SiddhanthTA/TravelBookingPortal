@@ -28,5 +28,7 @@ public class FlightPassenger {
     private String gender;
     private String email;
     private String phoneNumber;
+    @Column(length = 500)
+    private String address;
     private String passengerType;
 }
