@@ -230,3 +230,5 @@
 .booking-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .booking-card-actions button { margin: 0; }
 .booking-card-actions button:disabled { opacity: .5; cursor: not-allowed; }
+
+.booking-policy-note { padding: 10px 12px; border-radius: 8px; background: #f5f7fa; color: #68788d !important; font-size: 12px !important; }
