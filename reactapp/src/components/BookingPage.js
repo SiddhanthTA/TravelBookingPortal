@@ -1,23 +1,2 @@
-import React, { use, useState } from "react";
-import BookingList from "./BookingList";
-import './BookingPage.css';
-import { useNavigate } from "react-router-dom";
-
-const BookingPage = () => {
-    const navigate=useNavigate();
-    const [error, setError] = useState(null);
-
-    return (
-        <div className="booking-page">
-            <div className="booking-header">
-            <h2 className="booking-page-title">Your Bookings</h2>
-            {localStorage.getItem("userRole")==="ADMIN" && (
-            <button className="manage-bookings-btn" onClick={()=> navigate('/manage-bookings')}>Manage Bookings</button>)}
-            </div>
-            {error && <p className="error-text">{error}</p>}
-            <BookingList setError={setError} />
-        </div>
-    );
-};
-
-export default BookingPage;
+import React,{useState}from'react';import{useNavigate}from'react-router-dom';import BookingList from'./BookingList';import'./BookingPage.css';
+export default function BookingPage(){const navigate=useNavigate();const[error,setError]=useState('');return <main className="booking-page"><header className="booking-page-header"><div><span className="travel-eyebrow">YOUR JOURNEYS, ALL IN ONE PLACE</span><h1 className="booking-page-title">My bookings</h1><p>View your confirmed flights and stays, manage reservations and revisit your travel plans.</p></div>{localStorage.getItem('userRole')==='ADMIN'&&<button className="manage-bookings-btn" onClick={()=>navigate('/manage-bookings')}>Manage bookings</button>}</header>{error&&<p className="booking-page-error">{error}</p>}<BookingList setError={setError}/></main>;}
