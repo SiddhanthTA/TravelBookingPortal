@@ -24,9 +24,12 @@ public class HotelController {
     } 
 
     @GetMapping("/search")
-    public List<Hotel> searchHotels(@RequestParam(required = false) String location,@RequestParam(required=false) Integer rating, @RequestParam(required=false) Double price)
-    {
-        return hotelService.searchHotels(location,rating,price);
+    public List<Hotel> searchHotels(@RequestParam(required = false) String location,
+            @RequestParam(required=false) Integer rating, @RequestParam(required=false) Double price,
+            @RequestParam(required=false) Boolean wifi, @RequestParam(required=false) Boolean breakfast,
+            @RequestParam(required=false) Boolean pool, @RequestParam(required=false) Boolean gym,
+            @RequestParam(required=false) Boolean nearMainAreas) {
+        return hotelService.searchHotels(location, rating, price, wifi, breakfast, pool, gym, nearMainAreas);
     }
 
     @PostMapping
