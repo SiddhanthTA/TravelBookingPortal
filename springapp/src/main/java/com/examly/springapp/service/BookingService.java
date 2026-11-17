@@ -83,6 +83,8 @@ public class BookingService {
             passenger.setPhoneNumber(passengerRequest.getPhoneNumber());
             passenger.setAddress(passengerRequest.getAddress());
             passenger.setPassengerType(derivePassengerType(passengerRequest.getDateOfBirth()));
+            passenger.setSeatPreference(normalizePreference(passengerRequest.getSeatPreference(), List.of("Window", "Aisle", "Middle", "No preference"), "seat preference"));
+            passenger.setDietaryPreference(normalizePreference(passengerRequest.getDietaryPreference(), List.of("No preference", "Vegetarian", "Non-vegetarian", "Vegan", "Jain"), "dietary preference"));
             booking.getPassengers().add(passenger);
         }
         return bookingRepository.save(booking);
@@ -252,6 +254,12 @@ public class BookingService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid 10-digit Indian mobile number.");
         if (passenger.getAddress() != null && passenger.getAddress().length() > 255)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passenger address must be 255 characters or fewer.");
+    }
+
+    private String normalizePreference(String value, List<String> allowed, String label) {
+        if (value == null || value.isBlank()) return "No preference";
+        if (!allowed.contains(value)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose a valid " + label + ".");
+        return value;
     }
 
     private String derivePassengerType(LocalDate dateOfBirth) {
