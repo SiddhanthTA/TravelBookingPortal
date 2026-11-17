@@ -25,3 +25,6 @@ application-local.properties
 
 # Logs
 *.log
+
+# Uploaded profile images (stored locally, not committed)
+springapp/uploads/
