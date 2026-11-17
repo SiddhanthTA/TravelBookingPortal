@@ -102,7 +102,7 @@ public class DataInitializer implements CommandLineRunner {
                     {"Taj Coromandel","Chennai","5","10500"},{"ITC Grand Chola","Chennai","5","12000"},{"The Leela Palace Chennai","Chennai","5","9500"},{"The Park Chennai","Chennai","4","6500"},{"Radisson Blu Hotel Chennai City Centre","Chennai","5","7200"},
                     {"The Oberoi Grand","Kolkata","5","9500"},{"ITC Royal Bengal","Kolkata","5","11000"},{"Taj Bengal","Kolkata","5","9000"},{"The LaLiT Great Eastern Kolkata","Kolkata","5","7800"},{"Hyatt Regency Kolkata","Kolkata","5","7200"},
                     {"Taj Falaknuma Palace","Hyderabad","5","22000"},{"ITC Kohenur","Hyderabad","5","11500"},{"Park Hyatt Hyderabad","Hyderabad","5","10500"},{"Trident Hyderabad","Hyderabad","5","9000"},{"Novotel Hyderabad Convention Centre","Hyderabad","5","7500"},
-                    {"Vivanta Coimbatore","Coimbatore","4","6500"},{"The Residency Towers Coimbatore","Coimbatore","5","7200"},{"Welcomhotel by ITC Hotels, Race Course","Coimbatore","5","8000"},{"Zone by The Park Coimbatore","Coimbatore","4","4800"},{" ibis Coimbatore City Centre","Coimbatore","3","3900"}
+                    {"Vivanta Coimbatore","Coimbatore","4","6500"},{"The Residency Towers Coimbatore","Coimbatore","5","7200"},{"Welcomhotel by ITC Hotels, Race Course","Coimbatore","5","8000"},{"Zone by The Park Coimbatore","Coimbatore","4","4800"},{"ibis Coimbatore City Centre","Coimbatore","3","3900"}
                 };
                 String[] propertyPhotos = {
                     "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1000&auto=format&fit=crop&q=80",
@@ -134,7 +134,14 @@ public class DataInitializer implements CommandLineRunner {
                 }
                 // Ensure the original starter properties also display meaningful amenity metadata.
                 for (Hotel property : hotelRepository.findAll()) {
-                    if (property.getHotelType() == null) property.setHotelType(property.getRating() + " Star");
+                    if (property.getHotelType() == null) {
+                        property.setHotelType(property.getRating() + " Star");
+                        property.setWifi(true);
+                        property.setBreakfastIncluded(true);
+                        property.setSwimmingPool(property.getRating() >= 4);
+                        property.setGym(property.getRating() >= 4);
+                        property.setNearMainAreas(true);
+                    }
                     if (property.getImageUrl() == null) property.setImageUrl(propertyPhotos[Math.floorMod(property.getName().hashCode(), propertyPhotos.length)]);
                     if (property.getAddress() == null || property.getAddress().isBlank()) property.setAddress("Central area, " + property.getLocation());
                     hotelRepository.save(property);
