@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { createFlightCheckout, getFlightById, getUserById } from '../utils/ApiService';
 import './CheckoutFlow.css';
 
-const blankPassenger = () => ({ fullName: '', dateOfBirth: '', gender: '', email: '', phoneNumber: '', passengerType: 'ADULT' });
+const blankPassenger = () => ({ fullName: '', dateOfBirth: '', gender: '', email: '', phoneNumber: '', address: '', passengerType: 'ADULT' });
 
 export default function FlightCheckoutPage() {
     const { id } = useParams();
@@ -26,7 +26,7 @@ export default function FlightCheckoutPage() {
                 setProfile(profileData);
                 setPassengers((current) => current.map((p, index) => index === 0 ? {
                     ...p, fullName: profileData.name || '', dateOfBirth: profileData.dateOfBirth || '',
-                    gender: profileData.gender || '', email: profileData.email || '', phoneNumber: profileData.phoneNumber || ''
+                    gender: profileData.gender || '', email: profileData.email || '', phoneNumber: profileData.phoneNumber || '', address: [profileData.addressLine1, profileData.addressLine2, profileData.city, profileData.state, profileData.postalCode, profileData.country].filter(Boolean).join(', ')
                 } : p));
             })
             .catch(() => setError('Unable to load the flight or your profile. Please return to search.'))
@@ -37,7 +37,7 @@ export default function FlightCheckoutPage() {
         setBookingFor(value);
         setPassengers((current) => current.map((p, index) => {
             if (value === 'ME' && index === 0 && profile) {
-                return { ...blankPassenger(), fullName: profile.name || '', dateOfBirth: profile.dateOfBirth || '', gender: profile.gender || '', email: profile.email || '', phoneNumber: profile.phoneNumber || '' };
+                return { ...blankPassenger(), fullName: profile.name || '', dateOfBirth: profile.dateOfBirth || '', gender: profile.gender || '', email: profile.email || '', phoneNumber: profile.phoneNumber || '', address: [profile.addressLine1, profile.addressLine2, profile.city, profile.state, profile.postalCode, profile.country].filter(Boolean).join(', ') };
             }
             return blankPassenger();
         }));
@@ -91,7 +91,7 @@ export default function FlightCheckoutPage() {
                             <label>Gender<select value={passenger.gender} onChange={(e) => updatePassenger(index, 'gender', e.target.value)}><option value="">Select</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></label>
                             <label>Passenger type<select value={passenger.passengerType} onChange={(e) => updatePassenger(index, 'passengerType', e.target.value)}><option value="ADULT">Adult</option><option value="CHILD">Child</option><option value="INFANT">Infant</option></select></label>
                             <label>Email<input type="email" value={passenger.email} onChange={(e) => updatePassenger(index, 'email', e.target.value)} /></label>
-                            <label>Phone number<input type="tel" value={passenger.phoneNumber} onChange={(e) => updatePassenger(index, 'phoneNumber', e.target.value)} /></label>
+                            <label>Phone number<input type="tel" value={passenger.phoneNumber} onChange={(e) => updatePassenger(index, 'phoneNumber', e.target.value)} /></label>\n                            <label className="checkout-wide">Address<textarea rows="2" value={passenger.address} onChange={(e) => updatePassenger(index, 'address', e.target.value)} /></label>
                         </div>
                     </section>
                 ))}
