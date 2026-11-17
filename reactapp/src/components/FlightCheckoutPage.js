@@ -91,7 +91,8 @@ export default function FlightCheckoutPage() {
                             <label>Gender<select value={passenger.gender} onChange={(e) => updatePassenger(index, 'gender', e.target.value)}><option value="">Select</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></label>
                             <label>Passenger type<select value={passenger.passengerType} onChange={(e) => updatePassenger(index, 'passengerType', e.target.value)}><option value="ADULT">Adult</option><option value="CHILD">Child</option><option value="INFANT">Infant</option></select></label>
                             <label>Email<input type="email" value={passenger.email} onChange={(e) => updatePassenger(index, 'email', e.target.value)} /></label>
-                            <label>Phone number<input type="tel" value={passenger.phoneNumber} onChange={(e) => updatePassenger(index, 'phoneNumber', e.target.value)} /></label>\n                            <label className="checkout-wide">Address<textarea rows="2" value={passenger.address} onChange={(e) => updatePassenger(index, 'address', e.target.value)} /></label>
+                            <label>Phone number<input type="tel" value={passenger.phoneNumber} onChange={(e) => updatePassenger(index, 'phoneNumber', e.target.value)} /></label>
+                            <label className="checkout-wide">Address<textarea rows="2" value={passenger.address} onChange={(e) => updatePassenger(index, 'address', e.target.value)} /></label>
                         </div>
                     </section>
                 ))}
