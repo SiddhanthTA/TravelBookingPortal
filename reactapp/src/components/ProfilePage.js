@@ -69,7 +69,7 @@ const ProfilePage = () => {
         setSaving(true);
         setMessage("");
         try {
-            const updated = await updateUser(userId, formData);
+            const payload = { ...formData, dateOfBirth: formData.dateOfBirth || null };\n            const updated = await updateUser(userId, payload);
             setUser((previous) => ({ ...previous, ...updated, ...formData }));
             setEditMode(false);
             setMessage("Your profile has been updated.");
