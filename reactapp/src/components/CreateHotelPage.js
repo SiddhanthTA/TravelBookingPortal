@@ -1,50 +1,11 @@
-// CreateHotelPage.js
-import React, { useState } from 'react';
-import ApiService from '../utils/ApiService';
-import { useNavigate } from 'react-router-dom';
-import './CreateEditHotel.css';
-
-function CreateHotelPage() {
-    const navigate = useNavigate();
-    const [hotelData, setHotelData] = useState({
-        name: '',
-        location: '',
-        address: '',
-        rating: '',
-        pricePerNight: '',
-        availableRooms: ''
-    });
-    const [error, setError] = useState('');
-
-    const handleChange = (e) => {
-        setHotelData({ ...hotelData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await ApiService.createHotel(hotelData);
-            navigate('/manage-hotels');
-        } catch (err) {
-            setError('Failed to create hotel. Check all fields.');
-        }
-    };
-
-    return (
-        <div className="create-edit-hotel-page">
-            <h2>Create New Hotel</h2>
-            {error && <div className="error-message">{error}</div>}
-            <form onSubmit={handleSubmit} className="create-edit-hotel-form">
-                <input type="text" name="name" placeholder="Hotel Name" onChange={handleChange} required />
-                <input type="text" name="location" placeholder="Location" onChange={handleChange} required />
-                <input type="text" name="address" placeholder="Address" onChange={handleChange} required />
-                <input type="number" name="rating" placeholder="Rating" onChange={handleChange} required />
-                <input type="number" name="pricePerNight" placeholder="Price Per Night" onChange={handleChange} required />
-                <input type="number" name="availableRooms" placeholder="Available Rooms" onChange={handleChange} required />
-                <button type="submit">Create Hotel</button>
-            </form>
-        </div>
-    );
+import React,{useEffect,useState}from'react';import{useNavigate,useParams}from'react-router-dom';import ApiService from'../utils/ApiService';import'./AdminConsole.css';
+const blank={name:'',location:'',address:'',rating:'',pricePerNight:'',availableRooms:'',hotelType:'',wifi:false,breakfastIncluded:false,swimmingPool:false,gym:false,nearMainAreas:false,imageUrl:''};
+function validate(d){const e={};if(d.name.trim().length<2||d.name.trim().length>100)e.name='Hotel name must be 2–100 characters.';if(d.location.trim().length<2||d.location.trim().length>80)e.location='Enter a valid city or location.';if(d.address.trim().length<5||d.address.trim().length>255)e.address='Address must be 5–255 characters.';if(!Number.isInteger(Number(d.rating))||Number(d.rating)<1||Number(d.rating)>5)e.rating='Rating must be a whole number from 1 to 5.';if(d.pricePerNight===''||!Number.isFinite(Number(d.pricePerNight))||Number(d.pricePerNight)<=0)e.pricePerNight='Enter a nightly price greater than ₹0.';if(d.availableRooms===''||!Number.isInteger(Number(d.availableRooms))||Number(d.availableRooms)<0||Number(d.availableRooms)>10000)e.availableRooms='Rooms must be a whole number from 0 to 10,000.';if(d.imageUrl&&!/^https?:\/\//i.test(d.imageUrl))e.imageUrl='Enter a valid http or https image URL.';return e;}
+export default function HotelFormPage(){const{id}=useParams(),editing=Boolean(id),navigate=useNavigate(),[data,setData]=useState(blank),[errors,setErrors]=useState({}),[serverError,setServerError]=useState(''),[loading,setLoading]=useState(editing),[saving,setSaving]=useState(false);
+useEffect(()=>{if(!editing)return;ApiService.getHotelById(id).then(h=>{if(!h){setServerError('Hotel not found.');return;}setData({...blank,...h,rating:String(h.rating??''),pricePerNight:String(h.pricePerNight??''),availableRooms:String(h.availableRooms??'')});}).catch(()=>setServerError('Unable to load this property.')).finally(()=>setLoading(false));},[id,editing]);
+const change=e=>{const{ name,value,type,checked }=e.target;setData(p=>({...p,[name]:type==='checkbox'?checked:value}));setErrors(p=>({...p,[name]:''}));};
+const submit=async e=>{e.preventDefault();const next=validate(data);setErrors(next);setServerError('');if(Object.keys(next).length)return;setSaving(true);try{const payload={...data,name:data.name.trim(),location:data.location.trim(),address:data.address.trim(),rating:Number(data.rating),pricePerNight:Number(data.pricePerNight),availableRooms:Number(data.availableRooms),imageUrl:data.imageUrl.trim()};if(editing)await ApiService.updateHotel(id,payload);else await ApiService.createHotel(payload);navigate('/manage-hotels');}catch(err){setServerError(err.response?.data?.message||'Could not save the property. Check the details and try again.');}finally{setSaving(false);}};
+if(loading)return <main className="admin-console"><p>Loading property details…</p></main>;
+return <main className="admin-console"><div className="admin-page-heading"><div><span className="admin-eyebrow">PROPERTY OPERATIONS</span><h1>{editing?'Edit property':'Add a hotel'}</h1><p>{editing?'Keep the listing, pricing and amenities up to date.':'Create a property listing in the hotel directory.'}</p></div><button className="admin-btn admin-btn-secondary" onClick={()=>navigate('/manage-hotels')}>← Back to hotels</button></div>{serverError&&<div className="admin-alert">{serverError}</div>}<form className="admin-form-card" onSubmit={submit} noValidate><div className="admin-form-section"><h2>Property details</h2><div className="admin-form-grid"><Field name="name" label="Hotel name" value={data.name} onChange={change} error={errors.name} placeholder="Property name"/><Field name="location" label="City / location" value={data.location} onChange={change} error={errors.location} placeholder="e.g. Bengaluru"/><Field name="address" label="Full address" value={data.address} onChange={change} error={errors.address} placeholder="Street, area and locality"/><Field name="hotelType" label="Property category" value={data.hotelType} onChange={change} error={errors.hotelType} placeholder="e.g. 4 Star / Resort"/><Field name="imageUrl" label="Property image URL (optional)" value={data.imageUrl} onChange={change} error={errors.imageUrl} placeholder="https://…"/></div></div><div className="admin-form-section"><h2>Pricing & capacity</h2><div className="admin-form-grid"><Field name="rating" label="Guest rating (1–5)" type="number" min="1" max="5" step="1" value={data.rating} onChange={change} error={errors.rating}/><Field name="pricePerNight" label="Price per room / night (₹)" type="number" min="1" step="0.01" value={data.pricePerNight} onChange={change} error={errors.pricePerNight}/><Field name="availableRooms" label="Available rooms" type="number" min="0" step="1" value={data.availableRooms} onChange={change} error={errors.availableRooms}/></div></div><div className="admin-form-section"><h2>Amenities</h2><p>Select the facilities available at this property.</p><div className="admin-check-grid">{[['wifi','Wi-Fi'],['breakfastIncluded','Breakfast included'],['swimmingPool','Swimming pool'],['gym','Gym'],['nearMainAreas','Near main areas']].map(([key,label])=><label className="admin-check" key={key}><input type="checkbox" name={key} checked={Boolean(data[key])} onChange={change}/><span>{label}</span></label>)}</div></div><div className="admin-form-actions"><button type="button" className="admin-btn admin-btn-secondary" onClick={()=>navigate('/manage-hotels')}>Cancel</button><button className="admin-btn admin-btn-primary" disabled={saving}>{saving?(editing?'Saving…':'Creating…'):(editing?'Save property changes':'Create property')}</button></div></form></main>;
 }
-
-export default CreateHotelPage;
+function Field({name,label,error,...props}){return <div className="admin-field"><label htmlFor={name}>{label}</label><input id={name} name={name} {...props} className={error?'invalid':''}/>{error&&<small className="admin-field-error">{error}</small>}</div>}
