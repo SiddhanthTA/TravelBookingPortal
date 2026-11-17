@@ -2,6 +2,7 @@ package com.examly.springapp.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +72,7 @@ public class BookingService {
         booking.setPassengerCount(passengerCount);
 
         for (PassengerRequest passengerRequest : request.getPassengers()) {
+            validatePassenger(passengerRequest);
             FlightPassenger passenger = new FlightPassenger();
             passenger.setBooking(booking);
             passenger.setFullName(passengerRequest.getFullName().trim());
@@ -79,7 +81,7 @@ public class BookingService {
             passenger.setEmail(passengerRequest.getEmail());
             passenger.setPhoneNumber(passengerRequest.getPhoneNumber());
             passenger.setAddress(passengerRequest.getAddress());
-            passenger.setPassengerType(passengerRequest.getPassengerType());
+            passenger.setPassengerType(derivePassengerType(passengerRequest.getDateOfBirth()));
             booking.getPassengers().add(passenger);
         }
         return bookingRepository.save(booking);
@@ -178,6 +180,31 @@ public class BookingService {
         booking.setPaymentStatus("SUCCESS");
         booking.setStatus("CONFIRMED");
         return bookingRepository.save(booking);
+    }
+
+
+    private void validatePassenger(PassengerRequest passenger) {
+        if (passenger.getFullName() == null || !passenger.getFullName().trim().matches("[\\\\p{L}][\\\\p{L} .'-]{1,79}"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid passenger name (2–80 characters).");
+        if (passenger.getDateOfBirth() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passenger date of birth is required.");
+        int age = Period.between(passenger.getDateOfBirth(), LocalDate.now()).getYears();
+        if (age < 0 || age > 100) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid passenger date of birth.");
+        if (passenger.getGender() == null || !List.of("Female", "Male", "Non-binary", "Prefer not to say").contains(passenger.getGender()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose a valid passenger gender.");
+        if (passenger.getEmail() == null || !passenger.getEmail().matches("(?i)^[A-Z0-9._%+-]+@(gmail|yahoo)\\\\.com$"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid Gmail or Yahoo passenger email.");
+        if (passenger.getPhoneNumber() == null || !passenger.getPhoneNumber().matches("^[6-9][0-9]{9}$"))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Enter a valid 10-digit Indian mobile number.");
+        if (passenger.getAddress() != null && passenger.getAddress().length() > 255)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passenger address must be 255 characters or fewer.");
+    }
+
+    private String derivePassengerType(LocalDate dateOfBirth) {
+        int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
+        if (age < 2) return "INFANT";
+        if (age < 18) return "CHILD";
+        if (age < 55) return "ADULT";
+        return "SENIOR";
     }
 
     private void validateBookingFor(String bookingFor) {
