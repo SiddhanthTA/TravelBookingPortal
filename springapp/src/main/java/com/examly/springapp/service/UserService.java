@@ -79,6 +79,9 @@ public class UserService {
         if (dto.getPostalCode() != null && !dto.getPostalCode().isBlank()
                 && !POSTAL_PATTERN.matcher(dto.getPostalCode()).matches())
             throw new IllegalArgumentException("Postal code must contain exactly 6 digits.");
+        if (dto.getGender() != null && !dto.getGender().isBlank()
+                && !List.of("Female", "Male", "Non-binary", "Prefer not to say").contains(dto.getGender()))
+            throw new IllegalArgumentException("Choose a valid gender option.");
         if (dto.getCity() != null && !dto.getCity().isBlank()
                 && (dto.getState() == null || dto.getState().isBlank()))
             throw new IllegalArgumentException("Select a state before entering a city.");
