@@ -100,7 +100,9 @@ const ProfilePage = () => {
     const initials = useMemo(() => (user?.name || "Traveler").trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase(), [user]);
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setFormData((previous) => ({ ...previous, [name]: value, ...(name === "state" ? { city: "" } : {}) }));
+        const normalizedValue = name === "phoneNumber" ? value.replace(/\\D/g, "").slice(0, 10)
+            : name === "postalCode" ? value.replace(/\\D/g, "").slice(0, 6) : value;
+        setFormData((previous) => ({ ...previous, [name]: normalizedValue, ...(name === "state" ? { city: "" } : {}) }));
         setFieldErrors((previous) => ({ ...previous, [name]: "", ...(name === "state" ? { city: "" } : {}) }));
     };
     const handleImage = (event) => {
@@ -148,7 +150,7 @@ const ProfilePage = () => {
         <div className="profile-field" key={key}>
             <label htmlFor={key}>{label}</label>
             {editMode ? (options ? <select id={key} name={key} value={formData[key] ?? ""} onChange={handleChange}><option value="">Choose an option</option>{options.map((option) => <option key={option} value={option}>{option}</option>)}</select>
-                : <input id={key} name={key} type={type} value={formData[key] ?? ""} onChange={handleChange} className={fieldErrors[key] ? "invalid" : ""} />)
+                : <input id={key} name={key} type={type} value={formData[key] ?? ""} onChange={handleChange} min={key === "dateOfBirth" ? minDob : undefined} max={key === "dateOfBirth" ? maxDob : undefined} inputMode={["phoneNumber", "postalCode"].includes(key) ? "numeric" : undefined} className={fieldErrors[key] ? "invalid" : ""} />)
                 : <p>{formData[key] || <span className="profile-empty">Not added yet</span>}</p>}
             {editMode && fieldErrors[key] && <small className="field-error">{fieldErrors[key]}</small>}
         </div>
