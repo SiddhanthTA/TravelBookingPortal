@@ -60,7 +60,7 @@ public class UsermodelController {
     }
 
     @PostMapping("/{userId}/bookings/flight")
-    @PreAuthorize("@userAccess.isSelfOrAdmin(#userId, authentication)")
+    @PreAuthorize("@userAccess.isSelfOrAdmin(#p0, authentication)")
     public Booking bookFlightForUser(@PathVariable Long userId, @RequestBody Map<String, Object> request) {
         Long flightId = Long.valueOf(request.get("flightId").toString());
         return bookingService.createFlightBooking(flightId, userId).orElse(null);
@@ -95,7 +95,7 @@ public class UsermodelController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@userAccess.isSelfOrAdmin(#id, authentication)")
+    @PreAuthorize("@userAccess.isSelfOrAdmin(#p0, authentication)")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = ser.findById(id).orElseThrow(() -> new RuntimeException("User not found with id " + id));
         return ResponseEntity.ok(user);
