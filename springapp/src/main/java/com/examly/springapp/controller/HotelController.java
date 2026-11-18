@@ -12,7 +12,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/hotels")
-@CrossOrigin(origins="*")
+
 public class HotelController {
     @Autowired
     private HotelService hotelService;
