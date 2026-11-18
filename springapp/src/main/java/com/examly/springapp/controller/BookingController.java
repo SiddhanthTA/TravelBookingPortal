@@ -78,7 +78,7 @@ public class BookingController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#id, authentication)")
+    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#p0, authentication)")
     @PutMapping("/{id}/cancel")
     public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
         return bookingService.cancelBooking(id)
