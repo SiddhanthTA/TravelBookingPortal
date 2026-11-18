@@ -29,7 +29,7 @@ import com.examly.springapp.security.JwtService;
 @RestController
 @Tag(name = "User registration & Authentication")
 @RequestMapping("/Auth")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8081"})
+
 public class UsermodelController {
     @Autowired UserService ser;
     @Autowired private JwtService jwtService;
