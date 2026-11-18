@@ -60,7 +60,7 @@ public class BookingController {
     @PostMapping("/hotel")
     public Booking bookHotel(@RequestBody Map<String, Object> request, Authentication authentication) {
         Long hotelId = Long.valueOf(request.get("hotelId").toString());
-        Long userId = Long.valueOf(request.get("userId").toString());
+        Long userId = authenticatedUserId(authentication);
         int nights = Integer.parseInt(request.get("nights").toString());
         return bookingService.createHotelBooking(hotelId, userId, nights).orElse(null);
     }
