@@ -41,7 +41,7 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createHotelCheckout(request));
     }
 
-    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#bookingId, authentication)")
+    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#p0, authentication)")
     @PostMapping("/{bookingId}/pay")
     public ResponseEntity<Booking> simulatePayment(
             @PathVariable Long bookingId,
@@ -70,7 +70,7 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
-    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#id, authentication)")
+    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#p0, authentication)")
     @GetMapping("/{id}")
     public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
         return bookingService.getBookingById(id)
