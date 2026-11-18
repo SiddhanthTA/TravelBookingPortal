@@ -21,7 +21,7 @@ import HotelCheckoutPage from './components/HotelCheckoutPage';
 import PaymentPage from './components/PaymentPage';
 import BookingConfirmationPage from './components/BookingConfirmationPage';
 import DashboardPage from './components/DashboardPage';
-const PrivateRoute=({children})=>localStorage.getItem('userEmail')?children:<Navigate to="/login" replace/>;
+const PrivateRoute=({children})=>localStorage.getItem('authToken')?children:<Navigate to="/login" replace/>;
 const CustomerRoute=({children})=>localStorage.getItem('userRole')==='CUSTOMER'?children:<Navigate to="/" replace/>;
 const AdminRoute=({children})=>localStorage.getItem('userRole')==='ADMIN'?children:<Navigate to="/" replace/>;
 function AppRoutes(){const location=useLocation(),hideHeader=['/login','/register'].includes(location.pathname);return <><div className="main-content">{!hideHeader&&<Header/>}<Routes>
