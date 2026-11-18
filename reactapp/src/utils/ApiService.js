@@ -8,6 +8,13 @@ const api = axios.create({
     },
 });
 
+// Attach the signed-in user's JWT to every API request.
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+});
+
 export const fetchFlights = async (origin, destination, departureDate) => {
     const res = await api.get('/flights/search', {
         params: { origin, destination, departureDate }
