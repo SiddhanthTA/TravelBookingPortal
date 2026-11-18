@@ -8,29 +8,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.examly.springapp.dto.FlightCheckoutRequest;
 import com.examly.springapp.dto.HotelCheckoutRequest;
 import com.examly.springapp.dto.PaymentRequest;
 import com.examly.springapp.model.Booking;
 import com.examly.springapp.service.BookingService;
+import com.examly.springapp.repository.UserRepo;
 
 @RestController
 @RequestMapping("/api/bookings")
 public class BookingController {
     @Autowired
     private BookingService bookingService;
+    @Autowired private UserRepo userRepo;
+
+    private Long authenticatedUserId(Authentication authentication) {
+        return userRepo.findOptionalByEmail(authentication.getName()).orElseThrow().getId();
+    }
 
     @PostMapping("/flight/checkout")
-    public ResponseEntity<Booking> createFlightCheckout(@Valid @RequestBody FlightCheckoutRequest request) {
+    public ResponseEntity<Booking> createFlightCheckout(@Valid @RequestBody FlightCheckoutRequest request, Authentication authentication) {
+        request.setUserId(authenticatedUserId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createFlightCheckout(request));
     }
 
     @PostMapping("/hotel/checkout")
-    public ResponseEntity<Booking> createHotelCheckout(@Valid @RequestBody HotelCheckoutRequest request) {
+    public ResponseEntity<Booking> createHotelCheckout(@Valid @RequestBody HotelCheckoutRequest request, Authentication authentication) {
+        request.setUserId(authenticatedUserId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createHotelCheckout(request));
     }
 
+    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#bookingId, authentication)")
     @PostMapping("/{bookingId}/pay")
     public ResponseEntity<Booking> simulatePayment(
             @PathVariable Long bookingId,
@@ -40,14 +51,14 @@ public class BookingController {
 
     // Legacy endpoints retained while the React client migrates to the checkout flow.
     @PostMapping("/flight")
-    public Booking bookFlight(@RequestBody Map<String, Object> request) {
+    public Booking bookFlight(@RequestBody Map<String, Object> request, Authentication authentication) {
         Long flightId = Long.valueOf(request.get("flightId").toString());
-        Long userId = Long.valueOf(request.get("userId").toString());
+        Long userId = authenticatedUserId(authentication);
         return bookingService.createFlightBooking(flightId, userId).orElse(null);
     }
 
     @PostMapping("/hotel")
-    public Booking bookHotel(@RequestBody Map<String, Object> request) {
+    public Booking bookHotel(@RequestBody Map<String, Object> request, Authentication authentication) {
         Long hotelId = Long.valueOf(request.get("hotelId").toString());
         Long userId = Long.valueOf(request.get("userId").toString());
         int nights = Integer.parseInt(request.get("nights").toString());
@@ -59,6 +70,7 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
+    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#id, authentication)")
     @GetMapping("/{id}")
     public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
         return bookingService.getBookingById(id)
@@ -66,6 +78,7 @@ public class BookingController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("@bookingAccess.isOwnerOrAdmin(#id, authentication)")
     @PutMapping("/{id}/cancel")
     public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
         return bookingService.cancelBooking(id)
